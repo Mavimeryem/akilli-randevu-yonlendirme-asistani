@@ -1,9 +1,15 @@
+using AkilliRandevu.Business;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddBusiness(builder.Configuration.GetConnectionString("Varsayilan")!);
 
 var app = builder.Build();
+
+// Bekleyen migration'ları uygula; veritabanı yoksa örnek veriyle oluşturulur.
+await app.Services.VeritabaniniHazirlaAsync();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

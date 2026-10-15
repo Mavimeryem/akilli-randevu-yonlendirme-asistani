@@ -33,7 +33,7 @@ src/
 └── AkilliRandevu.Entities     → Varlıklar
 ```
 
-Veri modeli için [docs/ER-diyagrami.md](docs/ER-diyagrami.md) dosyasına bak.
+Veri modeli için [docs/ER-diyagrami.md](docs/ER-diyagrami.md), veritabanı, migration, kısıtlar ve CRUD için [docs/veritabani.md](docs/veritabani.md) dosyasına bak.
 
 ## Çalıştırma
 
@@ -46,11 +46,12 @@ dotnet build
 dotnet run --project src/AkilliRandevu.Web
 ```
 
-Ardından tarayıcıda konsolda yazan adresi aç (ör. `http://localhost:5xxx`).
+Ardından tarayıcıda konsolda yazan adresi aç (ör. `http://localhost:5xxx`). İlk çalıştırmada SQLite veritabanı (`akilli_randevu.db`) sentetik örnek veriyle otomatik oluşturulur.
 
 ## Haftalık ilerleme
 
 | Hafta | Konu | Durum |
 |---|---|---|
 | 3 | Kurulum, mimari ve veri modeli | ✅ |
-| 4–15 | … | ⏳ |
+| 4 | Veritabanı ve veri erişim katmanı | ✅ |
+| 5–15 | … | ⏳ |

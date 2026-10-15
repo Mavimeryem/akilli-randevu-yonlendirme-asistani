@@ -34,6 +34,7 @@ public class AppDbContext : DbContext
             e.Property(x => x.Eposta).HasMaxLength(100).IsRequired();
             e.Property(x => x.Telefon).HasMaxLength(20);
             e.HasIndex(x => x.Eposta).IsUnique();
+            e.ToTable(t => t.HasCheckConstraint("CK_Kullanici_Rol", "Rol IN (1, 2, 3)"));
         });
 
         // 1-1: Kullanici - Hasta (FK Hasta.KullaniciId, benzersiz)
@@ -41,6 +42,7 @@ public class AppDbContext : DbContext
         {
             e.Property(x => x.TcKimlikNo).HasMaxLength(11).IsFixedLength().IsRequired();
             e.HasIndex(x => x.TcKimlikNo).IsUnique();
+            e.ToTable(t => t.HasCheckConstraint("CK_Hasta_TcKimlikNo", "length(TcKimlikNo) = 11"));
             e.HasOne(x => x.Kullanici)
              .WithOne(k => k.Hasta)
              .HasForeignKey<Hasta>(x => x.KullaniciId)
@@ -77,6 +79,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<BelirtiBolum>(e =>
         {
             e.HasKey(x => new { x.BelirtiId, x.BolumId });
+            e.ToTable(t => t.HasCheckConstraint("CK_BelirtiBolum_AgirlikPuani", "AgirlikPuani BETWEEN 1 AND 10"));
             e.HasOne(x => x.Belirti).WithMany(b => b.BelirtiBolumleri).HasForeignKey(x => x.BelirtiId);
             e.HasOne(x => x.Bolum).WithMany(b => b.BelirtiBolumleri).HasForeignKey(x => x.BolumId);
         });
@@ -85,6 +88,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<BelirtiKaydi>(e =>
         {
             e.Property(x => x.Aciklama).HasMaxLength(1000);
+            // Hasta geçmişi ekranı: "bu hastanın kayıtları, en yeniden eskiye"
+            e.HasIndex(x => new { x.HastaId, x.OlusturmaTarihi });
             e.HasOne(x => x.Hasta)
              .WithMany(h => h.BelirtiKayitlari)
              .HasForeignKey(x => x.HastaId)
@@ -111,7 +116,15 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Randevu>(e =>
         {
             e.Property(x => x.DoktorNotu).HasMaxLength(2000);
+            // Takvim ekranı: "bu doktorun şu tarihteki randevuları" ve çakışma kontrolü
             e.HasIndex(x => new { x.DoktorId, x.BaslangicZamani });
+            // Hasta geçmişi: "bu hastanın randevuları, tarihe göre"
+            e.HasIndex(x => new { x.HastaId, x.BaslangicZamani });
+            e.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Randevu_Zaman", "BitisZamani > BaslangicZamani");
+                t.HasCheckConstraint("CK_Randevu_Durum", "Durum BETWEEN 1 AND 5");
+            });
             e.HasOne(x => x.Hasta)
              .WithMany(h => h.Randevular)
              .HasForeignKey(x => x.HastaId)
@@ -131,10 +144,14 @@ public class AppDbContext : DbContext
         {
             e.Property(x => x.Baslik).HasMaxLength(150).IsRequired();
             e.Property(x => x.Mesaj).HasMaxLength(1000).IsRequired();
+            // "okunmamış bildirimlerim" sorgusu
+            e.HasIndex(x => new { x.KullaniciId, x.OkunduMu });
             e.HasOne(x => x.Kullanici)
              .WithMany(k => k.Bildirimler)
              .HasForeignKey(x => x.KullaniciId)
              .OnDelete(DeleteBehavior.Cascade);
         });
+
+        SentetikVeri.Ekle(modelBuilder);
     }
 }
