@@ -15,6 +15,7 @@ public static class DataAccessKayitlari
         services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
         services.AddScoped<IRandevuRepository, EfRandevuRepository>();
         services.AddScoped<IBolumRepository, EfBolumRepository>();
+        services.AddScoped<IKullaniciRepository, EfKullaniciRepository>();
         return services;
     }
 

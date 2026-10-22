@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - AkilliRandevu.Web</title>
+    <title>@ViewData["Title"] - Akıllı Randevu</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -13,7 +13,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">AkilliRandevu.Web</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Akıllı Randevu</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -21,11 +21,49 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Ana sayfa</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                        @* Menüyü role göre göstermek sadece kolaylıktır; asıl koruma controller'lardaki [Authorize]'dır. *@
+                        @if (User.IsInRole(Roller.Hasta))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Hasta" asp-action="Randevularim">Randevularım</a>
+                            </li>
+                        }
+                        @if (User.IsInRole(Roller.Doktor))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Doktor" asp-action="Takvim">Takvimim</a>
+                            </li>
+                        }
+                        @if (User.IsInRole(Roller.Yonetici))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Yonetim" asp-action="Kullanicilar">Kullanıcılar</a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav align-items-sm-center">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <span class="navbar-text me-2">@User.Identity.Name</span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Hesap" asp-action="Cikis" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">Çıkış</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Hesap" asp-action="Giris">Giriş</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-sm btn-primary ms-sm-2" asp-controller="Hesap" asp-action="Kayit">Kayıt ol</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -39,7 +77,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - AkilliRandevu.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 - Akıllı Randevu ve Poliklinik Yönlendirme Asistanı
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

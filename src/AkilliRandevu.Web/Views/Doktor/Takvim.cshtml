@@ -1,0 +1,41 @@
+@model List<AkilliRandevu.Entities.Concrete.Randevu>
+@{
+    ViewData["Title"] = "Takvimim";
+    var gun = (DateOnly)ViewData["Gun"]!;
+}
+
+<h1 class="h3 mb-3">Takvimim</h1>
+
+<form method="get" class="d-flex gap-2 mb-3" style="max-width: 22rem">
+    <input type="date" name="gun" value="@gun.ToString("yyyy-MM-dd")" class="form-control" />
+    <button type="submit" class="btn btn-outline-primary">Göster</button>
+</form>
+
+@if (Model.Count == 0)
+{
+    <p class="text-muted">@gun.ToString("dd.MM.yyyy") tarihinde randevu yok.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Saat</th>
+                    <th>Hasta</th>
+                    <th>Durum</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td>@r.BaslangicZamani.ToString("HH:mm") – @r.BitisZamani.ToString("HH:mm")</td>
+                        <td>@r.Hasta.Kullanici.Ad @r.Hasta.Kullanici.Soyad</td>
+                        <td><partial name="_RandevuDurumu" model="r.Durum" /></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

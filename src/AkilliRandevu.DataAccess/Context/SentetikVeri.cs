@@ -10,12 +10,17 @@ namespace AkilliRandevu.DataAccess.Context;
 /// telefonlar 0555 000 .. biçimindedir; isimler rastgele seçilmiş yaygın isimlerdir.
 /// Migration'ların her seferinde aynı çıkması için tüm değerler (tarihler dahil) sabittir.
 /// </summary>
-internal static class SentetikVeri
+public static class SentetikVeri
 {
     private static readonly DateTime T0 = new(2026, 10, 1, 8, 0, 0, DateTimeKind.Utc);
-    private const string SahteHash = "SENTETIK-HASH";
 
-    public static void Ekle(ModelBuilder mb)
+    /// <summary>
+    /// Örnek kullanıcılara migration'da yazılan yer tutucu. Geçerli bir hash değildir, bu haliyle
+    /// giriş yapılamaz; geliştirme ortamında açılışta gerçek hash ile değiştirilir (Business katmanı).
+    /// </summary>
+    public const string SahteHash = "SENTETIK-HASH";
+
+    internal static void Ekle(ModelBuilder mb)
     {
         BolumleriEkle(mb);
         BelirtileriEkle(mb);

@@ -1,0 +1,14 @@
+@using AkilliRandevu.Entities.Enums
+@model RandevuDurumu
+@{
+    var (metin, renk) = Model switch
+    {
+        RandevuDurumu.Beklemede => ("Beklemede", "secondary"),
+        RandevuDurumu.Onaylandi => ("Onaylandı", "primary"),
+        RandevuDurumu.Tamamlandi => ("Tamamlandı", "success"),
+        RandevuDurumu.IptalEdildi => ("İptal edildi", "danger"),
+        RandevuDurumu.Gelmedi => ("Gelmedi", "warning"),
+        _ => (Model.ToString(), "secondary")
+    };
+}
+<span class="badge text-bg-@renk">@metin</span>

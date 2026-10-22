@@ -1,0 +1,42 @@
+@model List<AkilliRandevu.Entities.Concrete.Kullanici>
+@{
+    ViewData["Title"] = "Kullanıcılar";
+}
+
+<h1 class="h3 mb-3">Kullanıcılar</h1>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Ad Soyad</th>
+                <th>E-posta</th>
+                <th>Rol</th>
+                <th>Bölüm</th>
+                <th>Durum</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var k in Model)
+            {
+                <tr>
+                    <td>@k.Ad @k.Soyad</td>
+                    <td>@k.Eposta</td>
+                    <td>@k.Rol</td>
+                    <td>@k.Doktor?.Bolum.Ad</td>
+                    <td>
+                        @if (k.AktifMi)
+                        {
+                            <span class="badge text-bg-success">Aktif</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-secondary">Pasif</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<p class="text-muted small">Şifreler bu ekranda hiçbir şekilde gösterilmez; veritabanında yalnızca hash'leri tutulur.</p>

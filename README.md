@@ -48,10 +48,21 @@ dotnet run --project src/AkilliRandevu.Web
 
 Ardından tarayıcıda konsolda yazan adresi aç (ör. `http://localhost:5xxx`). İlk çalıştırmada SQLite veritabanı (`akilli_randevu.db`) sentetik örnek veriyle otomatik oluşturulur.
 
+Geliştirme ortamındaki sentetik test hesapları (şifre: `Demo1234`):
+
+| Rol | E-posta |
+|---|---|
+| Yönetici | `yonetici@ornek.test` |
+| Doktor | `doktor1@ornek.test` … `doktor10@ornek.test` |
+| Hasta | `hasta1@ornek.test` … `hasta8@ornek.test` |
+
+Güvenlik kararları için [docs/guvenlik-notu.md](docs/guvenlik-notu.md) dosyasına bak.
+
 ## Haftalık ilerleme
 
 | Hafta | Konu | Durum |
 |---|---|---|
 | 3 | Kurulum, mimari ve veri modeli | ✅ |
 | 4 | Veritabanı ve veri erişim katmanı | ✅ |
-| 5–15 | … | ⏳ |
+| 5 | Kullanıcı yönetimi ve kimlik doğrulama | ✅ |
+| 6–15 | … | ⏳ |
