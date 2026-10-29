@@ -1,4 +1,5 @@
 using AkilliRandevu.Business;
+using AkilliRandevu.Business.Takvim;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +12,7 @@ builder.Services.AddControllersWithViews(o =>
     o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
 });
 builder.Services.AddBusiness(builder.Configuration.GetConnectionString("Varsayilan")!);
+builder.Services.Configure<TakvimAyarlari>(builder.Configuration.GetSection("Takvim"));
 
 // Oturum: çerez tabanlı kimlik doğrulama.
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -47,6 +49,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRequestLocalization("tr-TR"); // tarih/gün adları Türkçe (ör. "Perşembe")
 app.UseRouting();
 
 app.UseAuthentication(); // "Kim bu?"  -> çerezden kullanıcıyı okur

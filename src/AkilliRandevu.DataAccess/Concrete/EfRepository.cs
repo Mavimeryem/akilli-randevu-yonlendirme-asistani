@@ -42,7 +42,9 @@ public class EfRepository<T> : IRepository<T> where T : BaseEntity
     // UPDATE Tablo SET ... WHERE Id = @id
     public async Task UpdateAsync(T entity)
     {
-        Set.Update(entity);
+        // Zaten takip edilen kayıtta EF yalnızca değişen sütunları yazar; takip dışıysa tüm satır güncellenir.
+        if (Context.Entry(entity).State == EntityState.Detached)
+            Set.Update(entity);
         await Context.SaveChangesAsync();
     }
 

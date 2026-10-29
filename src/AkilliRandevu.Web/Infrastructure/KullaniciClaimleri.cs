@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using AkilliRandevu.Business.Dtos;
 using AkilliRandevu.Entities.Concrete;
+using AkilliRandevu.Entities.Enums;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace AkilliRandevu.Web.Infrastructure;
@@ -30,6 +32,10 @@ public static class KullaniciClaimleri
         var kimlik = new ClaimsIdentity(claimler, CookieAuthenticationDefaults.AuthenticationScheme);
         return new ClaimsPrincipal(kimlik);
     }
+
+    /// <summary>İş katmanına "işlemi kim yapıyor" bilgisini oturumdan verir (sahiplik kontrolü için).</summary>
+    public static Islemci ToIslemci(this ClaimsPrincipal u) =>
+        new(Enum.Parse<Rol>(u.FindFirstValue(ClaimTypes.Role)!), u.GetHastaId(), u.GetDoktorId());
 
     public static int? GetHastaId(this ClaimsPrincipal u) => SayiOku(u, HastaId);
 

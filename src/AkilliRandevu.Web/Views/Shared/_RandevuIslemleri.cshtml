@@ -1,0 +1,23 @@
+@using AkilliRandevu.Entities.Enums
+@model RandevuSatiri
+@{
+    var donus = Context.Request.Path + Context.Request.QueryString;
+}
+@foreach (var hedef in Model.Izinler)
+{
+    var (metin, stil, onay) = hedef switch
+    {
+        RandevuDurumu.Onaylandi => ("Onayla", "btn-success", (string?)null),
+        RandevuDurumu.IptalEdildi => ("İptal et", "btn-outline-danger", "Randevu iptal edilsin mi?"),
+        RandevuDurumu.Tamamlandi => ("Tamamlandı", "btn-outline-success", null),
+        RandevuDurumu.Gelmedi => ("Gelmedi", "btn-outline-warning", null),
+        _ => (hedef.ToString(), "btn-outline-secondary", null)
+    };
+    <form asp-controller="Randevu" asp-action="DurumDegistir" method="post" class="d-inline"
+          onsubmit="@(onay is null ? null : $"return confirm('{onay}');")">
+        <input type="hidden" name="id" value="@Model.Randevu.Id" />
+        <input type="hidden" name="durum" value="@hedef" />
+        <input type="hidden" name="returnUrl" value="@donus" />
+        <button type="submit" class="btn btn-sm @stil">@metin</button>
+    </form>
+}

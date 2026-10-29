@@ -1,0 +1,74 @@
+@using AkilliRandevu.Business.Takvim
+@model RandevuAlViewModel
+@{
+    ViewData["Title"] = "Randevu al";
+}
+
+<h1 class="h3 mb-3">Randevu al</h1>
+
+@* Seçimler GET ile gönderilir; her değişiklikte sayfa yeniden yüklenip bir sonraki adım gösterilir. *@
+<form method="get" class="row g-3 align-items-end mb-4">
+    <div class="col-md-4">
+        <label class="form-label" for="bolumId">1. Bölüm</label>
+        <select class="form-select" id="bolumId" name="bolumId" onchange="this.form.doktorId.value=''; this.form.submit()">
+            <option value="">Bölüm seçin…</option>
+            @foreach (var b in Model.Bolumler)
+            {
+                <option value="@b.Id" selected="@(b.Id == Model.BolumId)">@b.Ad</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label" for="doktorId">2. Doktor</label>
+        <select class="form-select" id="doktorId" name="doktorId" onchange="this.form.submit()" disabled="@(Model.SeciliBolum is null)">
+            <option value="">Doktor seçin…</option>
+            @foreach (var d in Model.SeciliBolum?.Doktorlar ?? [])
+            {
+                <option value="@d.Id" selected="@(d.Id == Model.DoktorId)">@d.Unvan @d.Kullanici.Ad @d.Kullanici.Soyad</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label" for="gun">3. Gün</label>
+        <input class="form-control" type="date" id="gun" name="gun" onchange="this.form.submit()"
+               value="@Model.Gun.ToString("yyyy-MM-dd")"
+               min="@Model.EnErkenGun.ToString("yyyy-MM-dd")" max="@Model.EnGecGun.ToString("yyyy-MM-dd")" />
+    </div>
+    <noscript><div class="col-12"><button class="btn btn-outline-primary">Göster</button></div></noscript>
+</form>
+
+@if (Model.SeciliDoktor is { } doktor)
+{
+    <h2 class="h5">4. Saat seçin – @Model.Gun.ToString("dd.MM.yyyy dddd")</h2>
+
+    @if (Model.Slotlar.Count == 0)
+    {
+        <p class="text-muted">Bu gün poliklinik kapalı. Başka bir gün seçin.</p>
+    }
+    else if (Model.Slotlar.All(s => s.Durum != SlotDurumu.Bos))
+    {
+        <p class="text-muted">Bu gün için boş saat kalmadı. Başka bir gün seçin.</p>
+    }
+
+    <div class="d-flex flex-wrap gap-2">
+        @foreach (var s in Model.Slotlar)
+        {
+            if (s.Durum == SlotDurumu.Bos)
+            {
+                <form asp-action="Al" method="post"
+                      onsubmit="return confirm('@s.Baslangic.ToString("dd.MM.yyyy HH:mm") için randevu talebi oluşturulsun mu?');">
+                    <input type="hidden" name="doktorId" value="@doktor.Id" />
+                    <input type="hidden" name="bolumId" value="@Model.BolumId" />
+                    <input type="hidden" name="baslangic" value="@s.Baslangic.ToString("yyyy-MM-ddTHH:mm")" />
+                    <button type="submit" class="btn btn-outline-primary">@s.Baslangic.ToString("HH:mm")</button>
+                </form>
+            }
+            else
+            {
+                <button type="button" class="btn btn-light text-muted" disabled
+                        title="@(s.Durum == SlotDurumu.Dolu ? "Dolu" : "Geçmiş saat")">@s.Baslangic.ToString("HH:mm")</button>
+            }
+        }
+    </div>
+    <p class="form-text mt-3">Gri saatler dolu veya geçmiştir. Randevu talebiniz doktor onayıyla kesinleşir.</p>
+}

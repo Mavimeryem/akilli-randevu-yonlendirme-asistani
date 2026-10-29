@@ -1,0 +1,62 @@
+@model YonetimRandevularViewModel
+@{
+    ViewData["Title"] = "Randevular";
+}
+
+<h1 class="h3 mb-3">Randevular</h1>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-auto">
+        <label class="form-label" for="gun">Gün</label>
+        <input type="date" id="gun" name="gun" value="@Model.Gun.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-auto">
+        <label class="form-label" for="bolumId">Bölüm</label>
+        <select id="bolumId" name="bolumId" class="form-select">
+            <option value="">Tümü</option>
+            @foreach (var b in Model.Bolumler)
+            {
+                <option value="@b.Id" selected="@(b.Id == Model.BolumId)">@b.Ad</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Filtrele</button>
+    </div>
+</form>
+
+@if (Model.Randevular.Count == 0)
+{
+    <p class="text-muted">@Model.Gun.ToString("dd.MM.yyyy") için randevu yok.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Saat</th>
+                    <th>Bölüm</th>
+                    <th>Doktor</th>
+                    <th>Hasta</th>
+                    <th>Durum</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model.Randevular)
+                {
+                    var r = s.Randevu;
+                    <tr>
+                        <td>@r.BaslangicZamani.ToString("HH:mm")</td>
+                        <td>@r.Doktor.Bolum.Ad</td>
+                        <td>@r.Doktor.Unvan @r.Doktor.Kullanici.Ad @r.Doktor.Kullanici.Soyad</td>
+                        <td>@r.Hasta.Kullanici.Ad @r.Hasta.Kullanici.Soyad</td>
+                        <td><partial name="_RandevuDurumu" model="r.Durum" /></td>
+                        <td class="text-end"><partial name="_RandevuIslemleri" model="s" /></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

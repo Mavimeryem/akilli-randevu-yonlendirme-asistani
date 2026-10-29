@@ -1,5 +1,6 @@
 using AkilliRandevu.Business.Abstract;
 using AkilliRandevu.Business.Concrete;
+using AkilliRandevu.Business.Takvim;
 using AkilliRandevu.DataAccess;
 using AkilliRandevu.DataAccess.Abstract;
 using AkilliRandevu.DataAccess.Context;
@@ -19,6 +20,7 @@ public static class BusinessKayitlari
     {
         services.AddDataAccess(connectionString);
 
+        services.AddOptions<TakvimAyarlari>();   // değerler Web katmanında appsettings'ten bağlanır
         services.AddMemoryCache();
         services.AddSingleton(TimeProvider.System);
         services.AddSingleton<ISifreHasher, Pbkdf2SifreHasher>();

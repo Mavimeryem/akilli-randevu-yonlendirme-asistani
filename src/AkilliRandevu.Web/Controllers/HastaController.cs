@@ -1,5 +1,6 @@
 using AkilliRandevu.Business.Abstract;
 using AkilliRandevu.Web.Infrastructure;
+using AkilliRandevu.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +23,10 @@ public class HastaController : Controller
         if (User.GetHastaId() is not int hastaId)
             return Forbid();
 
-        return View(await _randevuService.HastaGecmisiAsync(hastaId));
+        var kim = User.ToIslemci();
+        var satirlar = (await _randevuService.HastaGecmisiAsync(hastaId))
+            .Select(r => new RandevuSatiri(r, _randevuService.IzinVerilenDurumlar(r, kim)))
+            .ToList();
+        return View(satirlar);
     }
 }

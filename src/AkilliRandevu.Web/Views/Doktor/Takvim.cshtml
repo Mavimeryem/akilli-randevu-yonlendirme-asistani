@@ -1,38 +1,51 @@
-@model List<AkilliRandevu.Entities.Concrete.Randevu>
+@using AkilliRandevu.Business.Takvim
+@model DoktorTakvimViewModel
 @{
     ViewData["Title"] = "Takvimim";
-    var gun = (DateOnly)ViewData["Gun"]!;
+    var dolu = Model.Satirlar.Count(s => s.Randevu is not null);
 }
 
 <h1 class="h3 mb-3">Takvimim</h1>
 
-<form method="get" class="d-flex gap-2 mb-3" style="max-width: 22rem">
-    <input type="date" name="gun" value="@gun.ToString("yyyy-MM-dd")" class="form-control" />
-    <button type="submit" class="btn btn-outline-primary">Göster</button>
+<form method="get" class="d-flex flex-wrap gap-2 mb-3">
+    <a class="btn btn-outline-secondary" asp-route-gun="@Model.Gun.AddDays(-1).ToString("yyyy-MM-dd")">‹ Önceki gün</a>
+    <input type="date" name="gun" value="@Model.Gun.ToString("yyyy-MM-dd")" class="form-control" style="max-width: 12rem" onchange="this.form.submit()" />
+    <a class="btn btn-outline-secondary" asp-route-gun="@Model.Gun.AddDays(1).ToString("yyyy-MM-dd")">Sonraki gün ›</a>
 </form>
 
-@if (Model.Count == 0)
+<p class="text-muted">@Model.Gun.ToString("dd.MM.yyyy dddd") · @dolu randevu</p>
+
+@if (Model.Satirlar.Count == 0)
 {
-    <p class="text-muted">@gun.ToString("dd.MM.yyyy") tarihinde randevu yok.</p>
+    <p class="text-muted">Bu gün poliklinik kapalı.</p>
 }
 else
 {
     <div class="table-responsive">
-        <table class="table table-striped align-middle">
+        <table class="table align-middle">
             <thead>
                 <tr>
-                    <th>Saat</th>
+                    <th style="width: 9rem">Saat</th>
                     <th>Hasta</th>
                     <th>Durum</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var r in Model)
+                @foreach (var s in Model.Satirlar)
                 {
-                    <tr>
-                        <td>@r.BaslangicZamani.ToString("HH:mm") – @r.BitisZamani.ToString("HH:mm")</td>
-                        <td>@r.Hasta.Kullanici.Ad @r.Hasta.Kullanici.Soyad</td>
-                        <td><partial name="_RandevuDurumu" model="r.Durum" /></td>
+                    <tr class="@(s.Randevu is null ? "text-muted" : "")">
+                        <td>@s.Baslangic.ToString("HH:mm") – @s.Bitis.ToString("HH:mm")</td>
+                        @if (s.Randevu is { } rs)
+                        {
+                            <td>@rs.Randevu.Hasta.Kullanici.Ad @rs.Randevu.Hasta.Kullanici.Soyad</td>
+                            <td><partial name="_RandevuDurumu" model="rs.Randevu.Durum" /></td>
+                            <td class="text-end"><partial name="_RandevuIslemleri" model="rs" /></td>
+                        }
+                        else
+                        {
+                            <td colspan="3">@(s.SlotDurumu == SlotDurumu.Gecmis ? "—" : "Boş")</td>
+                        }
                     </tr>
                 }
             </tbody>

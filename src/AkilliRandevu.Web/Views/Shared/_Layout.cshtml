@@ -27,6 +27,9 @@
                         @if (User.IsInRole(Roller.Hasta))
                         {
                             <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Randevu" asp-action="Al">Randevu al</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Hasta" asp-action="Randevularim">Randevularım</a>
                             </li>
                         }
@@ -38,6 +41,9 @@
                         }
                         @if (User.IsInRole(Roller.Yonetici))
                         {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Yonetim" asp-action="Randevular">Randevular</a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Yonetim" asp-action="Kullanicilar">Kullanıcılar</a>
                             </li>
@@ -71,6 +77,14 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            @if (TempData["Mesaj"] is string mesaj)
+            {
+                <div class="alert alert-success" role="status">@mesaj</div>
+            }
+            @if (TempData["Hata"] is string hata)
+            {
+                <div class="alert alert-danger" role="alert">@hata</div>
+            }
             @RenderBody()
         </main>
     </div>

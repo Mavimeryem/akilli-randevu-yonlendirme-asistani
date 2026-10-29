@@ -56,7 +56,7 @@ Geliştirme ortamındaki sentetik test hesapları (şifre: `Demo1234`):
 | Doktor | `doktor1@ornek.test` … `doktor10@ornek.test` |
 | Hasta | `hasta1@ornek.test` … `hasta8@ornek.test` |
 
-Güvenlik kararları için [docs/guvenlik-notu.md](docs/guvenlik-notu.md) dosyasına bak.
+Güvenlik kararları için [docs/guvenlik-notu.md](docs/guvenlik-notu.md), randevu kuralları için [docs/randevu-modulu.md](docs/randevu-modulu.md) dosyasına bak.
 
 ## Haftalık ilerleme
 
@@ -65,4 +65,5 @@ Güvenlik kararları için [docs/guvenlik-notu.md](docs/guvenlik-notu.md) dosyas
 | 3 | Kurulum, mimari ve veri modeli | ✅ |
 | 4 | Veritabanı ve veri erişim katmanı | ✅ |
 | 5 | Kullanıcı yönetimi ve kimlik doğrulama | ✅ |
-| 6–15 | … | ⏳ |
+| 6 | Randevu takvimi ve yönetimi | ✅ |
+| 7–15 | … | ⏳ |
