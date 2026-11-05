@@ -1,0 +1,12 @@
+@using AkilliRandevu.Entities.Enums
+@model AciliyetSeviyesi
+@{
+    var (metin, renk) = Model switch
+    {
+        AciliyetSeviyesi.Acil => ("Acil", "danger"),
+        AciliyetSeviyesi.Yuksek => ("Yüksek", "warning"),
+        AciliyetSeviyesi.Orta => ("Orta", "info"),
+        _ => ("Düşük", "secondary")
+    };
+}
+<span class="badge text-bg-@renk">@metin</span>

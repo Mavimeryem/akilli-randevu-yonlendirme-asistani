@@ -28,6 +28,8 @@ public class EfRandevuRepository : EfRepository<Randevu>, IRandevuRepository
         var (gunBasi, gunSonu) = GunAraligi(gun);
         return Set.AsNoTracking()
                   .Include(r => r.Hasta).ThenInclude(h => h.Kullanici)
+                  // Doktor, randevudan önce hastanın girdiği belirtileri görsün.
+                  .Include(r => r.BelirtiKaydi).ThenInclude(k => k!.Belirtiler).ThenInclude(b => b.Belirti)
                   .Where(r => r.DoktorId == doktorId
                            && r.BaslangicZamani >= gunBasi
                            && r.BaslangicZamani < gunSonu

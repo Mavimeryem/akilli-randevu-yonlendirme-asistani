@@ -15,6 +15,11 @@
     else
     {
         <p>Hoş geldiniz, <strong>@User.Identity.Name</strong>.</p>
+        @if (User.IsInRole(Roller.Hasta))
+        {
+            <a class="btn btn-primary" asp-controller="Belirti" asp-action="Giris">Belirtilerimi gir</a>
+            <a class="btn btn-outline-primary" asp-controller="Randevu" asp-action="Al">Doğrudan randevu al</a>
+        }
     }
 </div>
 

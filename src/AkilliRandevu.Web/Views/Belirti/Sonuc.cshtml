@@ -1,0 +1,103 @@
+@using AkilliRandevu.Entities.Enums
+@model AkilliRandevu.Business.Abstract.BelirtiKaydiDetayi
+@{
+    ViewData["Title"] = "Yönlendirme sonucu";
+    var kayit = Model.Kayit;
+    var sonuc = Model.Sonuc;
+    var aktifRandevu = kayit.Randevu is { Durum: not RandevuDurumu.IptalEdildi } r ? r : null;
+}
+
+<h1 class="h3 mb-3">Yönlendirme sonucu</h1>
+
+@if (sonuc.AcilMi)
+{
+    <div class="alert alert-danger" role="alert">
+        <h2 class="h5 alert-heading">⚠ Acil değerlendirme gerekebilir</h2>
+        <ul class="mb-2">
+            @foreach (var u in sonuc.AcilUyarilari)
+            {
+                <li>@u</li>
+            }
+        </ul>
+        <a class="btn btn-danger" href="tel:112">112'yi ara</a>
+    </div>
+}
+else if (sonuc.Aciliyet == AciliyetSeviyesi.Yuksek)
+{
+    <div class="alert alert-warning" role="alert">
+        <ul class="mb-0">
+            @foreach (var u in sonuc.AcilUyarilari)
+            {
+                <li>@u</li>
+            }
+        </ul>
+    </div>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        @foreach (var p in sonuc.Bilgilendirme)
+        {
+            <p class="mb-2">@p</p>
+        }
+    </div>
+</div>
+
+@if (!sonuc.AcilMi && sonuc.Oneriler.Count > 0)
+{
+    <h2 class="h5">Önerilen bölümler</h2>
+    <div class="list-group mb-3">
+        @foreach (var (o, i) in sonuc.Oneriler.Select((o, i) => (o, i)))
+        {
+            <div class="list-group-item d-flex flex-wrap align-items-center gap-3">
+                <div class="flex-grow-1" style="min-width: 12rem">
+                    <div class="fw-semibold">
+                        @o.BolumAdi
+                        @if (i == 0)
+                        {
+                            <span class="badge text-bg-primary ms-1">Önerilen</span>
+                        }
+                    </div>
+                    @if (o.Puan > 0)
+                    {
+                        <div class="progress mt-1" style="height: .5rem" role="progressbar" aria-label="Uygunluk" aria-valuenow="@o.Yuzde" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar" style="width: @o.Yuzde%"></div>
+                        </div>
+                        <div class="small text-muted">Belirtilerinize uygunluk: %@o.Yuzde</div>
+                    }
+                    else
+                    {
+                        <div class="small text-muted">Genel ilk değerlendirme</div>
+                    }
+                </div>
+                @if (aktifRandevu is null)
+                {
+                    <a class="btn @(i == 0 ? "btn-primary" : "btn-outline-primary")"
+                       asp-controller="Randevu" asp-action="Al" asp-route-bolumId="@o.BolumId" asp-route-belirtiKaydiId="@kayit.Id">Randevu al</a>
+                }
+            </div>
+        }
+    </div>
+}
+
+@if (aktifRandevu is not null)
+{
+    <div class="alert alert-info">
+        Bu kayıt için @aktifRandevu.BaslangicZamani.ToString("dd.MM.yyyy HH:mm") tarihli randevunuz var.
+        <a asp-controller="Hasta" asp-action="Randevularim">Randevularım</a>
+    </div>
+}
+
+<h2 class="h6 mt-4">Girdiğiniz belirtiler</h2>
+<ul class="list-inline">
+    @foreach (var b in kayit.Belirtiler.OrderByDescending(b => b.Siddet))
+    {
+        <li class="list-inline-item badge text-bg-light border">@b.Belirti.Ad · @b.Siddet/10</li>
+    }
+</ul>
+@if (kayit.Aciklama is not null)
+{
+    <p class="text-muted small">“@kayit.Aciklama”</p>
+}
+
+<a class="btn btn-link px-0" asp-action="Giris">Yeni belirti girişi</a>

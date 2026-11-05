@@ -18,6 +18,15 @@ public class EfBolumRepository : EfRepository<Bolum>, IBolumRepository
            .OrderBy(b => b.Ad)
            .ToListAsync();
 
+    public async Task<List<BelirtiBolum>> GetEslesmelerAsync(IEnumerable<int> belirtiIdleri)
+    {
+        var idler = belirtiIdleri.Distinct().ToList();
+        return await Context.BelirtiBolumleri.AsNoTracking()
+            .Include(bb => bb.Bolum)
+            .Where(bb => idler.Contains(bb.BelirtiId) && bb.Bolum.AktifMi)
+            .ToListAsync();
+    }
+
     // SELECT b.Id, b.Ad, SUM(bb.AgirlikPuani) FROM BelirtiBolumleri bb JOIN Bolumler b ...
     // WHERE bb.BelirtiId IN (...) AND b.AktifMi GROUP BY b.Id, b.Ad ORDER BY 3 DESC
     public async Task<List<BolumPuani>> BelirtilereGorePuanlaAsync(IEnumerable<int> belirtiIdleri)

@@ -27,10 +27,16 @@
                         @if (User.IsInRole(Roller.Hasta))
                         {
                             <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Belirti" asp-action="Giris">Belirti gir</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Randevu" asp-action="Al">Randevu al</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Hasta" asp-action="Randevularim">Randevularım</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Belirti" asp-action="Kayitlarim">Belirti kayıtlarım</a>
                             </li>
                         }
                         @if (User.IsInRole(Roller.Doktor))

@@ -1,0 +1,53 @@
+@model List<AkilliRandevu.Entities.Concrete.BelirtiKaydi>
+@{
+    ViewData["Title"] = "Belirti kayıtlarım";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Belirti kayıtlarım</h1>
+    <a class="btn btn-primary" asp-action="Giris">Yeni belirti girişi</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <p class="text-muted">Henüz belirti girişi yapmadınız.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Belirtiler</th>
+                    <th>Aciliyet</th>
+                    <th>Önerilen bölüm</th>
+                    <th>Randevu</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var k in Model)
+                {
+                    <tr>
+                        <td>@k.OlusturmaTarihi.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@string.Join(", ", k.Belirtiler.OrderByDescending(b => b.Siddet).Select(b => b.Belirti.Ad))</td>
+                        <td><partial name="_Aciliyet" model="k.Aciliyet" /></td>
+                        <td>@(k.OnerilenBolum?.Ad ?? "—")</td>
+                        <td>
+                            @if (k.Randevu is { } r)
+                            {
+                                <partial name="_RandevuDurumu" model="r.Durum" />
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-action="Sonuc" asp-route-id="@k.Id">Sonuç</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

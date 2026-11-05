@@ -14,7 +14,7 @@ public class RandevuService : IRandevuService
     private readonly IDoktorRepository _doktorlar;
     private readonly IBolumRepository _bolumler;
     private readonly IRepository<Hasta> _hastalar;
-    private readonly IRepository<BelirtiKaydi> _belirtiKayitlari;
+    private readonly IBelirtiKaydiRepository _belirtiKayitlari;
     private readonly IRepository<Bildirim> _bildirimler;
     private readonly IIslemYoneticisi _islem;
     private readonly TimeProvider _zaman;
@@ -24,7 +24,7 @@ public class RandevuService : IRandevuService
         IDoktorRepository doktorlar,
         IBolumRepository bolumler,
         IRepository<Hasta> hastalar,
-        IRepository<BelirtiKaydi> belirtiKayitlari,
+        IBelirtiKaydiRepository belirtiKayitlari,
         IRepository<Bildirim> bildirimler,
         IIslemYoneticisi islem,
         IOptions<TakvimAyarlari> ayarlar,
@@ -95,9 +95,22 @@ public class RandevuService : IRandevuService
         if (hasta is null)
             return Hata("Hasta kaydı bulunamadı.");
 
-        if (belirtiKaydiId is int kayitId
-            && !await _belirtiKayitlari.AnyAsync(k => k.Id == kayitId && k.HastaId == hastaId))
-            return Hata("Belirti kaydı bu hastaya ait değil.");
+        // Belirti kaydından gelen randevu: kayıt hastanın olmalı, acil olmamalı, aktif bir randevuya bağlı olmamalı.
+        Randevu? iptalEdilmisOnceki = null;
+        if (belirtiKaydiId is int kayitId)
+        {
+            var kayit = await _belirtiKayitlari.GetDetayliAsync(kayitId);
+            if (kayit is null || kayit.HastaId != hastaId)
+                return Hata("Belirti kaydı bu hastaya ait değil.");
+            if (kayit.Aciliyet == AciliyetSeviyesi.Acil)
+                return Hata("Belirtileriniz acil değerlendirme gerektirebilir. Randevu yerine 112'yi arayın veya acil servise başvurun.");
+            if (kayit.Randevu is { } onceki)
+            {
+                if (onceki.Durum != RandevuDurumu.IptalEdildi)
+                    return Hata("Bu belirti kaydı için zaten bir randevunuz var.");
+                iptalEdilmisOnceki = onceki;
+            }
+        }
 
         // --- Çakışma kontrolü + kayıt: tek transaction (araya başka istek giremez) ---
         return await _islem.TransactionIcindeAsync(async () =>
@@ -108,6 +121,14 @@ public class RandevuService : IRandevuService
                 return Hata("Aynı saatte başka bir randevunuz var.");
             if (await _randevular.BolumdeAktifRandevuVarMiAsync(hastaId, doktor.BolumId, simdi))
                 return Hata($"{doktor.Bolum.Ad} bölümünde zaten aktif bir randevunuz var. Yeni randevu için önce onu iptal edin.");
+
+            // Bir belirti kaydı en fazla bir randevuya bağlanır (benzersiz indeks). Önceki randevu iptal
+            // edildiyse bağlantısı kaldırılır; böylece hasta aynı kayıttan yeniden randevu alabilir.
+            if (iptalEdilmisOnceki is not null && await _randevular.GetByIdAsync(iptalEdilmisOnceki.Id) is { } eski)
+            {
+                eski.BelirtiKaydiId = null;
+                await _randevular.UpdateAsync(eski);
+            }
 
             var randevu = await _randevular.AddAsync(new Randevu
             {

@@ -12,6 +12,10 @@ public class RandevuAlViewModel
     public List<Bolum> Bolumler { get; set; } = [];
     public int? BolumId { get; set; }
     public int? DoktorId { get; set; }
+
+    /// <summary>Belirti yönlendirmesinden gelindiyse randevu bu kayda bağlanır.</summary>
+    public int? BelirtiKaydiId { get; set; }
+
     public DateOnly Gun { get; set; }
     public DateOnly EnErkenGun { get; set; }
     public DateOnly EnGecGun { get; set; }

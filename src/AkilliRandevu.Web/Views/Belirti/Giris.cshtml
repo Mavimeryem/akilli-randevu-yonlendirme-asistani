@@ -1,0 +1,61 @@
+@model BelirtiGirisViewModel
+@{
+    ViewData["Title"] = "Belirti girişi";
+}
+
+<h1 class="h3 mb-2">Şikâyetiniz nedir?</h1>
+<p class="text-muted">Yaşadığınız belirtileri işaretleyin ve her birinin şiddetini 1 (çok hafif) ile 10 (dayanılmaz) arasında belirtin.
+    Size uygun polikliniği önerelim.</p>
+
+<div class="alert alert-warning small">
+    Göğüs ağrısı, nefes almada ciddi zorluk, bilinç bulanıklığı, yüzde veya kolda ani güçsüzlük gibi
+    <strong>acil durumlarda bu formu doldurmayın; 112'yi arayın.</strong>
+</div>
+
+<form asp-action="Giris" method="post">
+    <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-2 mb-3">
+        @for (int i = 0; i < Model.Belirtiler.Count; i++)
+        {
+            var b = Model.Belirtiler[i];
+            <div class="col">
+                <div class="border rounded p-2 h-100">
+                    <input type="hidden" asp-for="Belirtiler[i].BelirtiId" />
+                    <div class="form-check">
+                        <input class="form-check-input belirti-sec" type="checkbox" asp-for="Belirtiler[i].Secili" />
+                        <label class="form-check-label fw-semibold" asp-for="Belirtiler[i].Secili">@b.Ad</label>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mt-1 siddet-alani">
+                        <label class="small text-muted" asp-for="Belirtiler[i].Siddet">Şiddet</label>
+                        <input type="range" class="form-range" min="1" max="10" step="1" asp-for="Belirtiler[i].Siddet"
+                               oninput="this.nextElementSibling.textContent = this.value" />
+                        <output class="badge text-bg-secondary" style="min-width: 2rem">@b.Siddet</output>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Aciklama" class="form-label"></label>
+        <textarea asp-for="Aciklama" class="form-control" rows="3" maxlength="1000"
+                  placeholder="Ör. Şikâyet ne zamandır var, ne zaman artıyor…"></textarea>
+        <span asp-validation-for="Aciklama" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Değerlendir</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Seçilmeyen belirtinin şiddet çubuğu soluk görünür.
+        document.querySelectorAll('.belirti-sec').forEach(cb => {
+            const alan = cb.closest('.border').querySelector('.siddet-alani');
+            const guncelle = () => alan.style.opacity = cb.checked ? 1 : .4;
+            cb.addEventListener('change', guncelle);
+            guncelle();
+        });
+    </script>
+}

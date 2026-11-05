@@ -13,4 +13,7 @@ public interface IBolumRepository : IRepository<Bolum>
     /// Bölüm yönlendirme modülünün temel sorgusudur.
     /// </summary>
     Task<List<BolumPuani>> BelirtilereGorePuanlaAsync(IEnumerable<int> belirtiIdleri);
+
+    /// <summary>Seçilen belirtilerin aktif bölümlerle eşleşmeleri (ağırlık puanlarıyla).</summary>
+    Task<List<BelirtiBolum>> GetEslesmelerAsync(IEnumerable<int> belirtiIdleri);
 }

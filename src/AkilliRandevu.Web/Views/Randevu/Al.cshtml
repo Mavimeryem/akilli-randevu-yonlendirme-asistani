@@ -6,8 +6,25 @@
 
 <h1 class="h3 mb-3">Randevu al</h1>
 
+@if (Model.BelirtiKaydiId is int kayitId)
+{
+    <div class="alert alert-info small">
+        Bu randevu <a asp-controller="Belirti" asp-action="Sonuc" asp-route-id="@kayitId">belirti kaydınıza</a> bağlanacak;
+        doktorunuz girdiğiniz belirtileri randevudan önce görebilir.
+    </div>
+}
+else
+{
+    <p class="text-muted">Hangi bölüme gideceğinizden emin değil misiniz?
+        <a asp-controller="Belirti" asp-action="Giris">Belirtilerinizi girin</a>, size uygun bölümü önerelim.</p>
+}
+
 @* Seçimler GET ile gönderilir; her değişiklikte sayfa yeniden yüklenip bir sonraki adım gösterilir. *@
 <form method="get" class="row g-3 align-items-end mb-4">
+    @if (Model.BelirtiKaydiId is int k)
+    {
+        <input type="hidden" name="belirtiKaydiId" value="@k" />
+    }
     <div class="col-md-4">
         <label class="form-label" for="bolumId">1. Bölüm</label>
         <select class="form-select" id="bolumId" name="bolumId" onchange="this.form.doktorId.value=''; this.form.submit()">
@@ -59,6 +76,7 @@
                       onsubmit="return confirm('@s.Baslangic.ToString("dd.MM.yyyy HH:mm") için randevu talebi oluşturulsun mu?');">
                     <input type="hidden" name="doktorId" value="@doktor.Id" />
                     <input type="hidden" name="bolumId" value="@Model.BolumId" />
+                    <input type="hidden" name="belirtiKaydiId" value="@Model.BelirtiKaydiId" />
                     <input type="hidden" name="baslangic" value="@s.Baslangic.ToString("yyyy-MM-ddTHH:mm")" />
                     <button type="submit" class="btn btn-outline-primary">@s.Baslangic.ToString("HH:mm")</button>
                 </form>

@@ -20,7 +20,7 @@ public class RandevuController : Controller
     /// <summary>Randevu alma: bölüm → doktor → gün seçilir, o günün boş slotları listelenir.</summary>
     [HttpGet]
     [Authorize(Roles = Roller.Hasta)]
-    public async Task<IActionResult> Al(int? bolumId, int? doktorId, DateOnly? gun)
+    public async Task<IActionResult> Al(int? bolumId, int? doktorId, DateOnly? gun, int? belirtiKaydiId)
     {
         var bugun = DateOnly.FromDateTime(_randevuService.Simdi);
         var model = new RandevuAlViewModel
@@ -28,6 +28,7 @@ public class RandevuController : Controller
             Bolumler = await _randevuService.BolumleriDoktorlariylaAsync(),
             BolumId = bolumId,
             DoktorId = doktorId,
+            BelirtiKaydiId = belirtiKaydiId,
             EnErkenGun = bugun,
             EnGecGun = bugun.AddDays(_randevuService.Ayarlar.EnFazlaIleriGun),
         };
@@ -41,17 +42,18 @@ public class RandevuController : Controller
 
     [HttpPost]
     [Authorize(Roles = Roller.Hasta)]
-    public async Task<IActionResult> Al(int doktorId, DateTime baslangic, int? bolumId)
+    public async Task<IActionResult> Al(int doktorId, DateTime baslangic, int? bolumId, int? belirtiKaydiId)
     {
         // Hasta kimliği formdan değil oturumdan: başkası adına randevu alınamaz.
         if (User.GetHastaId() is not int hastaId)
             return Forbid();
 
-        var sonuc = await _randevuService.OlusturAsync(hastaId, doktorId, baslangic);
+        // Belirti kaydının bu hastaya ait olduğu iş katmanında denetlenir.
+        var sonuc = await _randevuService.OlusturAsync(hastaId, doktorId, baslangic, belirtiKaydiId);
         if (!sonuc.Basarili)
         {
             TempData["Hata"] = sonuc.Hata;
-            return RedirectToAction(nameof(Al), new { bolumId, doktorId, gun = DateOnly.FromDateTime(baslangic).ToString("yyyy-MM-dd") });
+            return RedirectToAction(nameof(Al), new { bolumId, doktorId, gun = DateOnly.FromDateTime(baslangic).ToString("yyyy-MM-dd"), belirtiKaydiId });
         }
 
         TempData["Mesaj"] = $"{baslangic:dd.MM.yyyy HH:mm} randevu talebiniz alındı. Doktor onayı bekleniyor.";

@@ -27,6 +27,7 @@ public static class BusinessKayitlari
         services.AddSingleton<IGirisDenemeTakipcisi, BellekGirisDenemeTakipcisi>();
         services.AddScoped<IKullaniciService, KullaniciService>();
         services.AddScoped<IRandevuService, RandevuService>();
+        services.AddScoped<IBelirtiService, BelirtiService>();
         return services;
     }
 
