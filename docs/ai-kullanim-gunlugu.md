@@ -1,0 +1,79 @@
+# Yapay Zekâ Kullanım Günlüğü
+
+Bu belge, proje boyunca yapay zekâ araçlarının hangi amaçlarla kullanıldığını ve
+üretilen çıktıların nasıl değerlendirildiğini kaydeder.
+
+---
+
+## Hafta 3 – Kurulum, Mimari ve Veri Modeli
+
+| Görev | Araç | Kullanım amacı | Değerlendirme |
+|---|---|---|---|
+| Katmanlı mimari kararı | Claude | Entities / DataAccess / Business / Web ayrımı sorgulandı | Öneri benimsendi; bağımlılık yönü elle kontrol edildi |
+| ER diyagramı taslağı | Claude | Tablo ve ilişki önerileri istendi | `BelirtiBolumleri` çok-çoka tablosu eklendi, gereksiz alanlar çıkarıldı |
+| SQLite seçimi | Claude | Geliştirme için SQLite vs PostgreSQL karşılaştırması | SQLite tercih edildi; üretim için not düşüldü |
+
+---
+
+## Hafta 4 – Veritabanı ve Veri Erişim Katmanı
+
+| Görev | Araç | Kullanım amacı | Değerlendirme |
+|---|---|---|---|
+| EF Core migration akışı | Claude | İlk migration ve seed veri yapısı | Migration kodu incelendi, gereksiz cascade ayarları düzeltildi |
+| SQLite transaction kilitleme | Claude | `BEGIN IMMEDIATE` neden gerekli? | Açıklama doğrulandı; slot çakışma testi elle yapıldı |
+| Index önerileri | Claude | Hangi sütunlara index eklenmeli | Öneri benimsendi; `EXPLAIN QUERY PLAN` ile doğrulandı |
+
+---
+
+## Hafta 5 – Kullanıcı Yönetimi ve Kimlik Doğrulama
+
+| Görev | Araç | Kullanım amacı | Değerlendirme |
+|---|---|---|---|
+| Cookie tabanlı kimlik doğrulama | Claude | ASP.NET Core cookie auth yapılandırması | Kod şablonu alındı, `SlidingExpiration` ve `HttpOnly` ayarları elle eklendi |
+| Şifre hashleme | Claude | BCrypt vs ASP.NET Identity karşılaştırması | BCrypt seçildi; `PasswordHasher` belgesi okundu ve benimsendi |
+| Rol tabanlı yetkilendirme | Claude | `[Authorize(Roles)]` kullanımı | Öneri doğruydu; IDOR koruması ayrıca elle eklendi |
+
+---
+
+## Hafta 6 – Randevu Takvimi ve Yönetimi
+
+| Görev | Araç | Kullanım amacı | Değerlendirme |
+|---|---|---|---|
+| Slot üretici algoritması | Claude | Mesai saatlerine göre 20 dk slot listesi | Algoritma doğrulandı; öğle arası ve hafta sonu koşulları elle test edildi |
+| Durum makinesi tasarımı | Claude | Randevu durumları ve geçiş kuralları | Mermaid diyagramı üretildi; "Gelmedi" durumu kendi kararımla eklendi |
+| Çakışma koruması | Claude | Transaction ve kilitleme stratejisi | `BEGIN IMMEDIATE` ile 5 eşzamanlı istek testi elle yapıldı |
+
+---
+
+## Hafta 7 – Belirti Girişi ve Temel Yönlendirme
+
+| Görev | Araç | Kullanım amacı | Değerlendirme |
+|---|---|---|---|
+| Yönlendirme algoritması | Claude | Ağırlık × şiddet puanlama formülü | Formula benimsendi; eşik değerleri (%40, 10 puan farkı) hekim literatürü gözetilerek ayarlandı |
+| Acil kural listesi | Claude | Hangi belirti kombinasyonları acile işaret eder | Öneri başlangıç noktası olarak alındı; "inme şüphesi" kuralı (uyuşma + bulanık görme) elle eklendi |
+| Belirsizlik tespiti | Claude | Belirsiz sonuç koşulları | Dahiliye yönlendirmesi fikri benimsendi; eşik değerleri tartışıldı ve %40 seçildi |
+
+---
+
+## Hafta 8 – Ara Sürüm Entegrasyonu
+
+| Görev | Araç | Kullanım amacı | Değerlendirme |
+|---|---|---|---|
+| Uçtan uca akış incelemesi | Claude | Mevcut controller ve view bağlantılarının eksik var mı kontrolü | Eksik bağlantı bulunmadı; entegrasyon tamam |
+| Demo senaryosu | Claude | Adım adım demo taslağı | Taslak gözden geçirildi, acil durum senaryosu eklendi |
+| Bilinen hata taraması | Claude | Kod gözden geçirme | `program.cs` kök dosyası tespit edildi ve silindi |
+| Semantic versioning | Claude | v0.8.0 etiketinin anlamı | Semver belgesi okundu, etiket benimsendi |
+
+---
+
+## Genel Değerlendirme
+
+Yapay zekâ araçları bu projede şu amaçlarla kullanıldı:
+
+- **Şablonlama:** Tekrarlayan kod yapıları (controller, repository, view) için başlangıç taslakları.
+- **Mimari tartışma:** Tasarım kararlarını tartışmak ve alternatif yaklaşımları anlamak.
+- **Belgeleme:** Modül belgelerinin taslaklandırılması.
+- **Hata ayıklama:** Hata mesajlarını yorumlamak ve çözüm önerileri almak.
+
+Her değişiklik elle incelendi ve projeye uyarlandı. Üretilen kod doğrudan kopyalanmadı,
+gerektiğinde değiştirildi veya reddedildi.

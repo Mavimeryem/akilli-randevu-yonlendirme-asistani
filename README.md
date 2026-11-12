@@ -67,4 +67,5 @@ Güvenlik kararları için [docs/guvenlik-notu.md](docs/guvenlik-notu.md), rande
 | 5 | Kullanıcı yönetimi ve kimlik doğrulama | ✅ |
 | 6 | Randevu takvimi ve yönetimi | ✅ |
 | 7 | Belirti girişi ve temel yönlendirme | ✅ |
-| 8–15 | … | ⏳ |
+| 8 | Ara sürüm entegrasyonu ve vize hazırlık | ✅ |
+| 9–15 | … | ⏳ |
