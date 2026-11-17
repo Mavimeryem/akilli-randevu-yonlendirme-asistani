@@ -1,0 +1,193 @@
+@using AkilliRandevu.Business.Gecmis
+@using AkilliRandevu.Entities.Enums
+@inject AkilliRandevu.Business.Abstract.ISaat Saat
+@model GecmisViewModel
+@{
+    var g = Model.Gecmis;
+    var f = Model.Filtre;
+    ViewData["Title"] = Model.KendiGecmisi ? "Geçmişim" : $"{g.AdSoyad} – hasta geçmişi";
+    var donus = Context.Request.Path + Context.Request.QueryString;
+    string SayfaUrl(int s) => Url.Action("Index", new
+    {
+        hastaId = Model.KendiGecmisi ? (int?)null : g.HastaId,
+        baslangic = f.Baslangic?.ToString("yyyy-MM-dd"),
+        bitis = f.Bitis?.ToString("yyyy-MM-dd"),
+        tur = f.Tur, durum = f.Durum, bolumId = f.BolumId, sayfa = s
+    })!;
+}
+
+<h1 class="h3 mb-1">@ViewData["Title"]</h1>
+@if (!Model.KendiGecmisi)
+{
+    <p class="text-muted mb-3">
+        @if (g.Yas is int yas) { <span>@yas yaş · </span> }
+        @if (g.Cinsiyet is { } c && c != Cinsiyet.Belirtilmedi) { <span>@(c == Cinsiyet.Kadin ? "Kadın" : "Erkek") · </span> }
+        Bu görüntüleme hastanın erişim kayıtlarına işlendi.
+    </p>
+}
+@if (g.TibbiIcerikGizli)
+{
+    <div class="alert alert-secondary small">Yönetici görünümü: tıbbi içerik (belirtiler, açıklamalar, doktor notları, yapay zekâ gerekçeleri) gizlidir.</div>
+}
+
+@* Özet *@
+<div class="row row-cols-2 row-cols-md-5 g-2 mb-3 text-center">
+    <div class="col"><div class="border rounded p-2"><div class="fs-4">@g.Ozet.ToplamRandevu</div><small class="text-muted">randevu</small></div></div>
+    <div class="col"><div class="border rounded p-2"><div class="fs-4 text-success">@g.Ozet.Tamamlanan</div><small class="text-muted">tamamlanan</small></div></div>
+    <div class="col"><div class="border rounded p-2"><div class="fs-4 text-danger">@g.Ozet.IptalEdilen</div><small class="text-muted">iptal</small></div></div>
+    <div class="col"><div class="border rounded p-2"><div class="fs-4 text-warning">@g.Ozet.Gelmedi</div><small class="text-muted">gelmedi</small></div></div>
+    <div class="col"><div class="border rounded p-2"><div class="fs-4">@g.Ozet.BelirtiKaydi</div><small class="text-muted">belirti girişi</small></div></div>
+</div>
+@if (g.Ozet.SonZiyaret is { } son)
+{
+    <p class="small text-muted">Son tamamlanan muayene: @son.ToString("dd.MM.yyyy")</p>
+}
+
+@* Filtreler *@
+<form method="get" class="row g-2 align-items-end mb-3 border rounded p-2 mx-0">
+    @if (!Model.KendiGecmisi)
+    {
+        <input type="hidden" name="hastaId" value="@g.HastaId" />
+    }
+    <div class="col-6 col-md-2">
+        <label class="form-label small" for="baslangic">Başlangıç</label>
+        <input class="form-control form-control-sm" type="date" id="baslangic" name="baslangic" value="@f.Baslangic?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-6 col-md-2">
+        <label class="form-label small" for="bitis">Bitiş</label>
+        <input class="form-control form-control-sm" type="date" id="bitis" name="bitis" value="@f.Bitis?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-6 col-md-2">
+        <label class="form-label small" for="tur">Tür</label>
+        <select class="form-select form-select-sm" id="tur" name="tur">
+            <option value="">Tümü</option>
+            <option value="@GecmisTuru.Randevu" selected="@(f.Tur == GecmisTuru.Randevu)">Randevular</option>
+            <option value="@GecmisTuru.Belirti" selected="@(f.Tur == GecmisTuru.Belirti)">Belirti girişleri</option>
+        </select>
+    </div>
+    <div class="col-6 col-md-2">
+        <label class="form-label small" for="durum">Randevu durumu</label>
+        <select class="form-select form-select-sm" id="durum" name="durum">
+            <option value="">Tümü</option>
+            @foreach (var (d, ad) in new[] { (RandevuDurumu.Beklemede, "Beklemede"), (RandevuDurumu.Onaylandi, "Onaylandı"), (RandevuDurumu.Tamamlandi, "Tamamlandı"), (RandevuDurumu.IptalEdildi, "İptal edildi"), (RandevuDurumu.Gelmedi, "Gelmedi") })
+            {
+                <option value="@d" selected="@(f.Durum == d)">@ad</option>
+            }
+        </select>
+    </div>
+    <div class="col-6 col-md-2">
+        <label class="form-label small" for="bolumId">Bölüm</label>
+        <select class="form-select form-select-sm" id="bolumId" name="bolumId">
+            <option value="">Tümü</option>
+            @foreach (var b in Model.Bolumler)
+            {
+                <option value="@b.Id" selected="@(f.BolumId == b.Id)">@b.Ad</option>
+            }
+        </select>
+    </div>
+    <div class="col-6 col-md-2 d-flex gap-1">
+        <button class="btn btn-sm btn-primary flex-grow-1" type="submit">Filtrele</button>
+        <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Index", new { hastaId = Model.KendiGecmisi ? (int?)null : g.HastaId })">Temizle</a>
+    </div>
+</form>
+
+@* Zaman çizelgesi *@
+@if (g.Olaylar.Count == 0)
+{
+    <p class="text-muted">Seçilen filtrelere uyan kayıt yok.</p>
+}
+else
+{
+    <p class="small text-muted">@g.ToplamOlay kayıt</p>
+    <ul class="list-group mb-3">
+        @foreach (var o in g.Olaylar)
+        {
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between flex-wrap gap-2">
+                    <div>
+                        <span class="badge @(o.Tur == GecmisTuru.Randevu ? "text-bg-primary" : "text-bg-info")">@(o.Tur == GecmisTuru.Randevu ? "Randevu" : "Belirti")</span>
+                        <strong class="ms-1">@o.Baslik</strong>
+                        @if (o.Doktor is not null) { <span class="text-muted">· @o.Doktor</span> }
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        @if (o.RandevuDurumu is { } rd) { <partial name="_RandevuDurumu" model="rd" /> }
+                        @if (o.Aciliyet is { } ac) { <partial name="_Aciliyet" model="ac" /> }
+                        <small class="text-muted">@o.Tarih.ToString("dd.MM.yyyy HH:mm")</small>
+                    </div>
+                </div>
+
+                @if (o.Tur == GecmisTuru.Belirti && o.Bolum is not null)
+                {
+                    <div class="small">Önerilen bölüm: @o.Bolum</div>
+                }
+                @if (o.Belirtiler.Count > 0)
+                {
+                    <div class="small text-muted">@string.Join(", ", o.Belirtiler)</div>
+                }
+                @if (o.Aciklama is not null)
+                {
+                    <div class="small fst-italic">“@o.Aciklama”</div>
+                }
+                @if (o.YzOzeti is not null)
+                {
+                    <div class="small text-info-emphasis">@o.YzOzeti</div>
+                }
+                @if (o.DoktorNotu is not null && !o.KendiRandevusu)
+                {
+                    <div class="small mt-1"><span class="text-muted">Doktor notu:</span> @o.DoktorNotu</div>
+                }
+
+                @if (o.KendiRandevusu && o.RandevuDurumu != RandevuDurumu.IptalEdildi && o.Tarih <= Model.Simdi)
+                {
+                    <form asp-action="DoktorNotu" method="post" class="mt-2">
+                        <input type="hidden" name="randevuId" value="@o.KayitId" />
+                        <input type="hidden" name="returnUrl" value="@donus" />
+                        <label class="form-label small mb-1" for="not-@o.KayitId">Muayene notu</label>
+                        <div class="d-flex gap-2">
+                            <textarea class="form-control form-control-sm" id="not-@o.KayitId" name="not" rows="2" maxlength="2000">@o.DoktorNotu</textarea>
+                            <button class="btn btn-sm btn-outline-primary align-self-start" type="submit">Kaydet</button>
+                        </div>
+                    </form>
+                }
+            </li>
+        }
+    </ul>
+
+    @if (g.ToplamSayfa > 1)
+    {
+        <nav aria-label="Sayfalar">
+            <ul class="pagination pagination-sm">
+                @for (int s = 1; s <= g.ToplamSayfa; s++)
+                {
+                    <li class="page-item @(s == g.Sayfa ? "active" : "")"><a class="page-link" href="@SayfaUrl(s)">@s</a></li>
+                }
+            </ul>
+        </nav>
+    }
+}
+
+@if (Model.KendiGecmisi)
+{
+    <h2 class="h6 mt-4">Geçmişimi kimler görüntüledi?</h2>
+    @if (Model.ErisimKayitlari.Count == 0)
+    {
+        <p class="small text-muted">Geçmişinizi sizden başka kimse görüntülemedi.</p>
+    }
+    else
+    {
+        <table class="table table-sm small">
+            <thead><tr><th>Tarih</th><th>Kim</th><th>Rol</th></tr></thead>
+            <tbody>
+                @foreach (var e in Model.ErisimKayitlari)
+                {
+                    <tr>
+                        <td>@Saat.YereleCevir(e.OlusturmaTarihi).ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@e.Erisen.Ad @e.Erisen.Soyad</td>
+                        <td>@(e.ErisenRol == Rol.Doktor ? "Doktor" : "Yönetici")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    <p class="small"><a asp-controller="Belirti" asp-action="Kayitlarim">Belirti kayıtlarım (ayrıntılı)</a> · <a asp-controller="Hasta" asp-action="Randevularim">Randevularım</a></p>
+}

@@ -20,6 +20,7 @@ public class EfKullaniciRepository : EfRepository<Kullanici>, IKullaniciReposito
 
     public Task<List<Kullanici>> GetTumuProfilleriyleAsync() =>
         Set.AsNoTracking()
+           .Include(k => k.Hasta)
            .Include(k => k.Doktor).ThenInclude(d => d!.Bolum)
            .OrderBy(k => k.Rol).ThenBy(k => k.Ad).ThenBy(k => k.Soyad)
            .ToListAsync();

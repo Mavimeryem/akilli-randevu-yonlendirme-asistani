@@ -23,7 +23,13 @@
                     <td>@k.Ad @k.Soyad</td>
                     <td>@k.Eposta</td>
                     <td>@k.Rol</td>
-                    <td>@k.Doktor?.Bolum.Ad</td>
+                    <td>
+                        @k.Doktor?.Bolum.Ad
+                        @if (k.Hasta is { } h)
+                        {
+                            <a class="btn btn-sm btn-link p-0" asp-controller="Gecmis" asp-action="Index" asp-route-hastaId="@h.Id">Geçmiş</a>
+                        }
+                    </td>
                     <td>
                         @if (k.AktifMi)
                         {

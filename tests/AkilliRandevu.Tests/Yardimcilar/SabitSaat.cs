@@ -15,4 +15,6 @@ public sealed class SabitSaat : ISaat
     public DateTime UtcSimdi => DateTime.SpecifyKind(Simdi.AddHours(-3), DateTimeKind.Utc);
 
     public DateTime YereleCevir(DateTime utc) => utc.AddHours(3);
+
+    public DateTime UtcyeCevir(DateTime yerel) => DateTime.SpecifyKind(yerel.AddHours(-3), DateTimeKind.Utc);
 }

@@ -25,6 +25,9 @@ public interface IRandevuService
     /// <summary>Onay, iptal, tamamlandı, gelmedi. Sahiplik ve durum kuralları denetlenir.</summary>
     Task<IslemSonucu> DurumDegistirAsync(int randevuId, RandevuDurumu yeniDurum, Islemci kim);
 
+    /// <summary>Muayene notu: yalnızca randevunun doktoru, randevu başladıktan sonra yazabilir. Boş not mevcut notu siler.</summary>
+    Task<IslemSonucu> DoktorNotuKaydetAsync(int randevuId, string? not, Islemci kim);
+
     /// <summary>Arayüzde hangi butonların gösterileceği için.</summary>
     List<RandevuDurumu> IzinVerilenDurumlar(Randevu randevu, Islemci kim);
 

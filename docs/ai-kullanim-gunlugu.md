@@ -90,6 +90,15 @@ Bu hafta yapay zekâ hem geliştirme aracı hem de **ürünün parçası** olara
 
 ---
 
+## Hafta 11 – Hasta Geçmişi Modülü
+
+| Görev | Araç | Kullanım amacı | Değerlendirme |
+|---|---|---|---|
+| Erişim kuralları | Claude (Claude Code) | Hasta / doktor (tedavi ilişkisi) / yönetici (tıbbi içerik gizli) ayrımı, yetkisiz istekte 404 | 17 testle doğrulandı (yetkili/yetkisiz, maskeleme, erişim izi) |
+| Geçmiş veri modeli ve filtreler | Claude (Claude Code) | Randevu + belirti kayıtlarının tek zaman çizelgesinde birleşmesi, saat dilimi farkı, sayfalama | Filtre sonuçları örnek veriyle tek tek sayıldı ve testlere yazıldı |
+
+---
+
 ## Genel Değerlendirme
 
 Yapay zekâ araçları bu projede şu amaçlarla kullanıldı:

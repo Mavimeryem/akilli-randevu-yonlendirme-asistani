@@ -24,6 +24,7 @@ public class AppDbContext : DbContext
     public DbSet<Bildirim> Bildirimler => Set<Bildirim>();
     public DbSet<EpostaGonderimi> EpostaGonderimleri => Set<EpostaGonderimi>();
     public DbSet<YzDegerlendirmesi> YzDegerlendirmeleri => Set<YzDegerlendirmesi>();
+    public DbSet<ErisimKaydi> ErisimKayitlari => Set<ErisimKaydi>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -190,6 +191,22 @@ public class AppDbContext : DbContext
              .WithMany()
              .HasForeignKey(x => x.OnerilenBolumId)
              .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // Erişim izi: hasta silinirse izleri de silinir; erişen kullanıcı izi olduğu sürece silinemez (RESTRICT).
+        modelBuilder.Entity<ErisimKaydi>(e =>
+        {
+            e.Property(x => x.Islem).HasMaxLength(100).IsRequired();
+            // "Bu hastanın geçmişine kimler erişti, en yeniden" sorgusu
+            e.HasIndex(x => new { x.HastaId, x.OlusturmaTarihi });
+            e.HasOne(x => x.Hasta)
+             .WithMany()
+             .HasForeignKey(x => x.HastaId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Erisen)
+             .WithMany()
+             .HasForeignKey(x => x.ErisenKullaniciId)
+             .OnDelete(DeleteBehavior.Restrict);
         });
 
         SentetikVeri.Ekle(modelBuilder);

@@ -187,6 +187,27 @@ public class RandevuService : IRandevuService
         });
     }
 
+    public const int DoktorNotuUzunlugu = 2000;
+
+    public async Task<IslemSonucu> DoktorNotuKaydetAsync(int randevuId, string? not, Islemci kim)
+    {
+        var r = await _randevular.GetDetayliAsync(randevuId);
+        if (r is null || kim.Rol != Rol.Doktor || kim.DoktorId != r.DoktorId)
+            return IslemSonucu.Hatali("Bu randevuya not yazma yetkiniz yok.");
+        if (r.Durum == RandevuDurumu.IptalEdildi)
+            return IslemSonucu.Hatali("İptal edilmiş randevuya not yazılamaz.");
+        if (r.BaslangicZamani > Simdi)
+            return IslemSonucu.Hatali("Muayene notu randevu saati geldikten sonra yazılabilir.");
+
+        not = string.IsNullOrWhiteSpace(not) ? null : not.Trim();
+        if (not?.Length > DoktorNotuUzunlugu)
+            return IslemSonucu.Hatali($"Not en fazla {DoktorNotuUzunlugu} karakter olabilir.");
+
+        r.DoktorNotu = not;
+        await _randevular.UpdateAsync(r);
+        return IslemSonucu.Tamam();
+    }
+
     public List<RandevuDurumu> IzinVerilenDurumlar(Randevu randevu, Islemci kim) =>
         RandevuDurumKurallari.IzinVerilenler(randevu, kim, Simdi, Ayarlar);
 

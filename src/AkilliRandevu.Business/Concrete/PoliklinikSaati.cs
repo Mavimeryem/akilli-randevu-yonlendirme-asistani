@@ -21,4 +21,7 @@ public sealed class PoliklinikSaati : ISaat
 
     public DateTime YereleCevir(DateTime utc) =>
         TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(utc, DateTimeKind.Utc), _dilim);
+
+    public DateTime UtcyeCevir(DateTime yerel) =>
+        TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(yerel, DateTimeKind.Unspecified), _dilim);
 }

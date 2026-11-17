@@ -39,7 +39,7 @@ else
                         @if (s.Randevu is { } rs)
                         {
                             <td>
-                                @rs.Randevu.Hasta.Kullanici.Ad @rs.Randevu.Hasta.Kullanici.Soyad
+                                <a asp-controller="Gecmis" asp-action="Index" asp-route-hastaId="@rs.Randevu.HastaId">@rs.Randevu.Hasta.Kullanici.Ad @rs.Randevu.Hasta.Kullanici.Soyad</a>
                                 @if (rs.Randevu.BelirtiKaydi is { } k)
                                 {
                                     <div class="small text-muted">

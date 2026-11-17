@@ -1,6 +1,7 @@
 using AkilliRandevu.Business.Abstract;
 using AkilliRandevu.Business.Bildirimler;
 using AkilliRandevu.Business.Concrete;
+using AkilliRandevu.Business.Gecmis;
 using AkilliRandevu.Business.Takvim;
 using AkilliRandevu.Business.YapayZeka;
 using AkilliRandevu.DataAccess;
@@ -36,6 +37,7 @@ public static class BusinessKayitlari
         services.AddScoped<IKullaniciService, KullaniciService>();
         services.AddScoped<IRandevuService, RandevuService>();
         services.AddScoped<IBelirtiService, BelirtiService>();
+        services.AddScoped<IHastaGecmisiService, HastaGecmisiService>();
 
         // Bildirim: uygulama içi + e-posta giden kutusu + hatırlatma zamanlayıcısı
         services.AddHttpClient<IEpostaGonderici, BrevoEpostaGonderici>(c =>

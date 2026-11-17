@@ -933,6 +933,38 @@ namespace AkilliRandevu.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("AkilliRandevu.Entities.Concrete.ErisimKaydi", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ErisenKullaniciId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ErisenRol")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("HastaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Islem")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("OlusturmaTarihi")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ErisenKullaniciId");
+
+                    b.HasIndex("HastaId", "OlusturmaTarihi");
+
+                    b.ToTable("ErisimKayitlari", (string)null);
+                });
+
             modelBuilder.Entity("AkilliRandevu.Entities.Concrete.Hasta", b =>
                 {
                     b.Property<int>("Id")
@@ -1599,6 +1631,25 @@ namespace AkilliRandevu.DataAccess.Migrations
                     b.Navigation("BelirtiKaydi");
 
                     b.Navigation("OnerilenBolum");
+                });
+
+            modelBuilder.Entity("AkilliRandevu.Entities.Concrete.ErisimKaydi", b =>
+                {
+                    b.HasOne("AkilliRandevu.Entities.Concrete.Kullanici", "Erisen")
+                        .WithMany()
+                        .HasForeignKey("ErisenKullaniciId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AkilliRandevu.Entities.Concrete.Hasta", "Hasta")
+                        .WithMany()
+                        .HasForeignKey("HastaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Erisen");
+
+                    b.Navigation("Hasta");
                 });
 
             modelBuilder.Entity("AkilliRandevu.Entities.Concrete.Hasta", b =>

@@ -13,4 +13,7 @@ public interface ISaat
 
     /// <summary>UTC zamanı poliklinik yerel saatine çevirir (ör. OlusturmaTarihi göstermek için).</summary>
     DateTime YereleCevir(DateTime utc);
+
+    /// <summary>Poliklinik yerel saatini UTC'ye çevirir (ör. tarih filtresini UTC sütunlara uygulamak için).</summary>
+    DateTime UtcyeCevir(DateTime yerel);
 }

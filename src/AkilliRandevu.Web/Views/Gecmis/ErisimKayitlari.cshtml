@@ -1,0 +1,34 @@
+@using AkilliRandevu.Entities.Enums
+@inject AkilliRandevu.Business.Abstract.ISaat Saat
+@model List<AkilliRandevu.Entities.Concrete.ErisimKaydi>
+@{
+    ViewData["Title"] = "Erişim kayıtları";
+}
+
+<h1 class="h3 mb-3">Hasta geçmişi erişim kayıtları</h1>
+<p class="text-muted small">Hasta dışında birinin bir hasta geçmişini her görüntülemesi burada listelenir (KVKK – erişim izi). Son 200 kayıt.</p>
+
+@if (Model.Count == 0)
+{
+    <p class="text-muted">Kayıt yok.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm table-striped">
+            <thead><tr><th>Tarih</th><th>Erişen</th><th>Rol</th><th>Hasta</th><th>İşlem</th></tr></thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td>@Saat.YereleCevir(e.OlusturmaTarihi).ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@e.Erisen.Ad @e.Erisen.Soyad</td>
+                        <td>@(e.ErisenRol == Rol.Doktor ? "Doktor" : "Yönetici")</td>
+                        <td>@e.Hasta.Kullanici.Ad @e.Hasta.Kullanici.Soyad</td>
+                        <td>@e.Islem</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

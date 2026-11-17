@@ -70,4 +70,5 @@ Güvenlik kararları için [docs/guvenlik-notu.md](docs/guvenlik-notu.md), rande
 | 8 | Ara sürüm entegrasyonu ve vize hazırlık | ✅ |
 | 9 | Harici API entegrasyonu: e-posta bildirim ve hatırlatma | ✅ |
 | 10 | Yapay zekâ bileşeni: belirtiden bölüm yönlendirme (Claude) | ✅ |
-| 11–15 | … | ⏳ |
+| 11 | Hasta geçmişi modülü | ✅ |
+| 12–15 | … | ⏳ |

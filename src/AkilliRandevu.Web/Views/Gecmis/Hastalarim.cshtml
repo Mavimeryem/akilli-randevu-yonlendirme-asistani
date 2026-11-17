@@ -1,0 +1,31 @@
+@model List<AkilliRandevu.DataAccess.Abstract.DoktorHastasi>
+@{
+    ViewData["Title"] = "Hastalarım";
+}
+
+<h1 class="h3 mb-3">Hastalarım</h1>
+<p class="text-muted small">Yalnızca sizinle randevusu olan hastalar listelenir. Bir hastanın geçmişini açtığınızda bu erişim kayıt altına alınır ve hasta tarafından görülebilir.</p>
+
+@if (Model.Count == 0)
+{
+    <p class="text-muted">Henüz randevunuz olan hasta yok.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead><tr><th>Hasta</th><th>Son randevu</th><th>Randevu sayısı</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var h in Model)
+                {
+                    <tr>
+                        <td>@h.Ad @h.Soyad</td>
+                        <td>@h.SonRandevu.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@h.RandevuSayisi</td>
+                        <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-action="Index" asp-route-hastaId="@h.HastaId">Geçmiş</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
