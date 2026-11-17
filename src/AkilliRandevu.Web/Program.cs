@@ -1,6 +1,7 @@
 using AkilliRandevu.Business;
 using AkilliRandevu.Business.Bildirimler;
 using AkilliRandevu.Business.Takvim;
+using AkilliRandevu.Business.YapayZeka;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,8 @@ builder.Services.Configure<TakvimAyarlari>(builder.Configuration.GetSection("Tak
 // (geliştirmede: dotnet user-secrets set "Eposta:ApiAnahtari" "...")
 builder.Services.Configure<EpostaAyarlari>(builder.Configuration.GetSection("Eposta"));
 builder.Services.Configure<BildirimAyarlari>(builder.Configuration.GetSection("Bildirim"));
+// Claude API anahtarı da dosyada değil: ANTHROPIC_API_KEY ortam değişkeni
+builder.Services.Configure<YapayZekaAyarlari>(builder.Configuration.GetSection("YapayZeka"));
 
 // Oturum: çerez tabanlı kimlik doğrulama.
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

@@ -43,6 +43,11 @@ else if (sonuc.Aciliyet == AciliyetSeviyesi.Yuksek)
     </div>
 </div>
 
+@if (kayit.YzDegerlendirmesi is not null)
+{
+    <partial name="_YzDegerlendirmesi" model="Model" />
+}
+
 @if (!sonuc.AcilMi && sonuc.Oneriler.Count > 0)
 {
     <h2 class="h5">Önerilen bölümler</h2>

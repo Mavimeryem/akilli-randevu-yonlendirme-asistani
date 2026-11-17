@@ -1,0 +1,80 @@
+@using AkilliRandevu.Entities.Enums
+@model AkilliRandevu.Business.Abstract.BelirtiKaydiDetayi
+@{
+    var yz = Model.Kayit.YzDegerlendirmesi!;
+    var kural = Model.Sonuc.EnUygun;
+    var aktifRandevu = Model.Kayit.Randevu is { Durum: not RandevuDurumu.IptalEdildi };
+}
+
+<div class="card mb-3 border-info">
+    <div class="card-header bg-info-subtle d-flex justify-content-between align-items-center">
+        <strong>Yapay zekâ değerlendirmesi</strong>
+        <small class="text-muted">@yz.Model · istem @yz.IstemSurumu · @((yz.SureMs / 1000.0).ToString("0.0")) sn</small>
+    </div>
+    <div class="card-body">
+        @if (yz.Durum == YzDurumu.Basarili && yz.OnerilenBolum is { } bolum)
+        {
+            var (guvenMetni, guvenRenk) = yz.Guven switch
+            {
+                YzGuven.Yuksek => ("yüksek", "success"),
+                YzGuven.Orta => ("orta", "warning"),
+                _ => ("düşük", "secondary")
+            };
+
+            @if (yz.AcilBelirtiVar)
+            {
+                <div class="alert alert-warning py-2">
+                    <strong>Dikkat:</strong> @yz.AcilGerekce Belirtileriniz kötüleşirse ya da şiddetliyse randevu beklemeden 112'yi arayın.
+                </div>
+            }
+
+            <p class="mb-1">
+                Önerilen bölüm: <strong>@bolum.Ad</strong>
+                <span class="badge text-bg-@guvenRenk ms-1">güven: @guvenMetni</span>
+            </p>
+            <p class="mb-2"><span class="text-muted">Gerekçe:</span> @yz.Gerekce</p>
+
+            @if (kural is not null && !Model.Sonuc.AcilMi)
+            {
+                if (kural.BolumId == bolum.Id)
+                {
+                    <p class="small text-success mb-2">✓ Kural tabanlı öneriyle aynı bölüm.</p>
+                }
+                else
+                {
+                    <p class="small mb-2">
+                        Kural tabanlı öneri <strong>@kural.BolumAdi</strong>. İki öneri farklı; şikâyetinizi en iyi tarif eden bölümü
+                        seçebilir ya da emin değilseniz Dahiliye'ye başvurabilirsiniz.
+                    </p>
+                    @if (!aktifRandevu && Model.Sonuc.Oneriler.All(o => o.BolumId != bolum.Id))
+                    {
+                        <a class="btn btn-sm btn-outline-info mb-2" asp-controller="Randevu" asp-action="Al"
+                           asp-route-bolumId="@bolum.Id" asp-route-belirtiKaydiId="@Model.Kayit.Id">@bolum.Ad için randevu al</a>
+                    }
+                }
+            }
+        }
+        else
+        {
+            <p class="mb-1">Yapay zekâ değerlendirmesi bu kez yapılamadı; aşağıdaki kural tabanlı öneri geçerlidir.</p>
+            <p class="small text-muted mb-0">
+                Neden:
+                @(yz.Durum switch
+                {
+                    YzDurumu.Reddedildi => "model bu isteği yanıtlamadı",
+                    YzDurumu.Gecersiz => "yanıt doğrulamadan geçmedi",
+                    _ => "servise ulaşılamadı"
+                })
+                @if (!string.IsNullOrEmpty(yz.Hata))
+                {
+                    <span>(@yz.Hata)</span>
+                }
+            </p>
+        }
+
+        <p class="small text-muted mb-0 mt-2">
+            Bu öneri bir yapay zekâ modeli tarafından üretilmiştir ve hatalı olabilir. Tanı değildir; yalnızca hangi polikliniğe
+            başvurabileceğinize dair bir öneridir. Acil kararı yapay zekâya değil, tanımlı tıbbi kurallara dayanır.
+        </p>
+    </div>
+</div>

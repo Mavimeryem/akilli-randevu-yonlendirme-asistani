@@ -16,6 +16,7 @@ public class EfBelirtiKaydiRepository : EfRepository<BelirtiKaydi>, IBelirtiKayd
            .Include(k => k.Belirtiler).ThenInclude(b => b.Belirti)
            .Include(k => k.OnerilenBolum)
            .Include(k => k.Randevu)
+           .Include(k => k.YzDegerlendirmesi).ThenInclude(y => y!.OnerilenBolum)
            .FirstOrDefaultAsync(k => k.Id == kayitId);
 
     // IX_BelirtiKayitlari_HastaId_OlusturmaTarihi indeksini kullanır.
@@ -24,6 +25,7 @@ public class EfBelirtiKaydiRepository : EfRepository<BelirtiKaydi>, IBelirtiKayd
            .Include(k => k.Belirtiler).ThenInclude(b => b.Belirti)
            .Include(k => k.OnerilenBolum)
            .Include(k => k.Randevu)
+           .Include(k => k.YzDegerlendirmesi).ThenInclude(y => y!.OnerilenBolum)
            .Where(k => k.HastaId == hastaId)
            .OrderByDescending(k => k.OlusturmaTarihi)
            .ToListAsync();

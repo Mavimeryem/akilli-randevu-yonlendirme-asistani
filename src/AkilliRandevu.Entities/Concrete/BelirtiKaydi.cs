@@ -17,5 +17,6 @@ public class BelirtiKaydi : BaseEntity
     public Hasta Hasta { get; set; } = null!;
     public Bolum? OnerilenBolum { get; set; }
     public Randevu? Randevu { get; set; }
+    public YzDegerlendirmesi? YzDegerlendirmesi { get; set; }
     public ICollection<BelirtiKaydiBelirti> Belirtiler { get; set; } = new List<BelirtiKaydiBelirti>();
 }

@@ -76,6 +76,20 @@ Bu belge, proje boyunca yapay zekâ araçlarının hangi amaçlarla kullanıldı
 
 ---
 
+## Hafta 10 – Yapay Zekâ Bileşeni (Belirtiden Bölüm Yönlendirme)
+
+Bu hafta yapay zekâ hem geliştirme aracı hem de **ürünün parçası** olarak kullanıldı.
+
+| Görev | Araç | Kullanım amacı | Değerlendirme |
+|---|---|---|---|
+| Claude C# SDK kullanımı | Claude (Claude Code) | Yapılandırılmış çıktı (`output_config.format`), hata sınıfları, yedek model ayarı | SDK sürüm 13.9.0'daki tür adları DLL'den doğrulandı; derleyiciyle kontrol edildi |
+| İstem tasarımı (v1) | Claude (Claude Code) | Rol, sınırlar (tanı yok), güven tanımı, acil işaretleri, istem enjeksiyonuna karşı etiketleme | İstemin tamamı `docs/yapay-zeka-bileseni.md` içinde belgelendi; içerik testleri var |
+| Çıktı doğrulama ve hata yönetimi | Claude (Claude Code) | Listede olmayan bölüm, boş/kesik yanıt, ret, servis hatası | 32 birim/entegrasyon testi (sahte model istemcisi) GitHub Actions'ta çalışıyor |
+
+**Ürün içindeki yapay zekâ çağrılarının günlüğü:** Her çağrının modeli, istem sürümü, süresi, sonucu ve hatası `YzDegerlendirmeleri` tablosunda tutuluyor.
+
+---
+
 ## Genel Değerlendirme
 
 Yapay zekâ araçları bu projede şu amaçlarla kullanıldı:

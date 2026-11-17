@@ -2,6 +2,7 @@ using AkilliRandevu.Business.Abstract;
 using AkilliRandevu.Business.Bildirimler;
 using AkilliRandevu.Business.Concrete;
 using AkilliRandevu.Business.Takvim;
+using AkilliRandevu.Business.YapayZeka;
 using AkilliRandevu.DataAccess;
 using AkilliRandevu.DataAccess.Abstract;
 using AkilliRandevu.DataAccess.Context;
@@ -25,6 +26,7 @@ public static class BusinessKayitlari
         services.AddOptions<TakvimAyarlari>();
         services.AddOptions<EpostaAyarlari>();
         services.AddOptions<BildirimAyarlari>();
+        services.AddOptions<YapayZekaAyarlari>();
 
         services.AddMemoryCache();
         services.AddSingleton(TimeProvider.System);
@@ -42,6 +44,10 @@ public static class BusinessKayitlari
         services.AddScoped<IHatirlatmaServisi, HatirlatmaServisi>();
         services.AddScoped<IEpostaKuyrugu, EpostaKuyrugu>();
         services.AddHostedService<BildirimArkaPlanServisi>();
+
+        // Yapay zekâ: belirti metninden bölüm önerisi (Claude). İstemci tekil: SDK istemcisi yeniden kullanılır.
+        services.AddSingleton<IYapayZekaIstemcisi, ClaudeYapayZekaIstemcisi>();
+        services.AddSingleton<IBolumOneriAsistani, BolumOneriAsistani>();
         return services;
     }
 

@@ -23,6 +23,7 @@ public class AppDbContext : DbContext
     public DbSet<Randevu> Randevular => Set<Randevu>();
     public DbSet<Bildirim> Bildirimler => Set<Bildirim>();
     public DbSet<EpostaGonderimi> EpostaGonderimleri => Set<EpostaGonderimi>();
+    public DbSet<YzDegerlendirmesi> YzDegerlendirmeleri => Set<YzDegerlendirmesi>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -166,6 +167,29 @@ public class AppDbContext : DbContext
              .WithMany(b => b.EpostaGonderimleri)
              .HasForeignKey(x => x.BildirimId)
              .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 1-0..1: BelirtiKaydi - YzDegerlendirmesi; önerilen bölüm opsiyonel (bölüm silinirse boşaltılır)
+        modelBuilder.Entity<YzDegerlendirmesi>(e =>
+        {
+            e.Property(x => x.Gerekce).HasMaxLength(1000);
+            e.Property(x => x.AcilGerekce).HasMaxLength(500);
+            e.Property(x => x.Model).HasMaxLength(60).IsRequired();
+            e.Property(x => x.IstemSurumu).HasMaxLength(20).IsRequired();
+            e.Property(x => x.Hata).HasMaxLength(500);
+            e.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_YzDegerlendirmesi_Durum", "Durum BETWEEN 1 AND 4");
+                t.HasCheckConstraint("CK_YzDegerlendirmesi_Guven", "Guven IS NULL OR Guven BETWEEN 1 AND 3");
+            });
+            e.HasOne(x => x.BelirtiKaydi)
+             .WithOne(k => k.YzDegerlendirmesi)
+             .HasForeignKey<YzDegerlendirmesi>(x => x.BelirtiKaydiId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.OnerilenBolum)
+             .WithMany()
+             .HasForeignKey(x => x.OnerilenBolumId)
+             .OnDelete(DeleteBehavior.SetNull);
         });
 
         SentetikVeri.Ekle(modelBuilder);

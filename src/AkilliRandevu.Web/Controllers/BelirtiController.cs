@@ -23,13 +23,16 @@ public class BelirtiController : Controller
         var katalog = await _belirtiService.BelirtileriGetirAsync();
         return View(new BelirtiGirisViewModel
         {
-            Belirtiler = katalog.Select(b => new BelirtiSecimi { BelirtiId = b.Id, Ad = b.Ad }).ToList()
+            Belirtiler = katalog.Select(b => new BelirtiSecimi { BelirtiId = b.Id, Ad = b.Ad }).ToList(),
+            YapayZekaKullanilabilir = _belirtiService.YapayZekaKullanilabilir
         });
     }
 
     [HttpPost]
-    public async Task<IActionResult> Giris(BelirtiGirisViewModel model)
+    public async Task<IActionResult> Giris(BelirtiGirisViewModel model, CancellationToken ct)
     {
+        model.YapayZekaKullanilabilir = _belirtiService.YapayZekaKullanilabilir;
+
         if (User.GetHastaId() is not int hastaId)
             return Forbid();
 
@@ -40,7 +43,8 @@ public class BelirtiController : Controller
                 .Select(b => new SecilenBelirti(b.BelirtiId, b.Siddet))
                 .ToList();
 
-            var sonuc = await _belirtiService.DegerlendirAsync(hastaId, secilenler, model.Aciklama);
+            var sonuc = await _belirtiService.DegerlendirAsync(
+                hastaId, secilenler, model.Aciklama, model.YapayZekaOnayi && model.YapayZekaKullanilabilir, ct);
             if (sonuc.Basarili)
                 return RedirectToAction(nameof(Sonuc), new { id = sonuc.Veri });
 

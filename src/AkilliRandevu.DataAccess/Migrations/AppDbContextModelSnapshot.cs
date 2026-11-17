@@ -869,6 +869,70 @@ namespace AkilliRandevu.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("AkilliRandevu.Entities.Concrete.YzDegerlendirmesi", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AcilBelirtiVar")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AcilGerekce")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("BelirtiKaydiId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Durum")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Gerekce")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("Guven")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Hata")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("IstemSurumu")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("OlusturmaTarihi")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OnerilenBolumId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SureMs")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BelirtiKaydiId")
+                        .IsUnique();
+
+                    b.HasIndex("OnerilenBolumId");
+
+                    b.ToTable("YzDegerlendirmeleri", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_YzDegerlendirmesi_Durum", "Durum BETWEEN 1 AND 4");
+
+                            t.HasCheckConstraint("CK_YzDegerlendirmesi_Guven", "Guven IS NULL OR Guven BETWEEN 1 AND 3");
+                        });
+                });
+
             modelBuilder.Entity("AkilliRandevu.Entities.Concrete.Hasta", b =>
                 {
                     b.Property<int>("Id")
@@ -1519,6 +1583,24 @@ namespace AkilliRandevu.DataAccess.Migrations
                     b.Navigation("Bildirim");
                 });
 
+            modelBuilder.Entity("AkilliRandevu.Entities.Concrete.YzDegerlendirmesi", b =>
+                {
+                    b.HasOne("AkilliRandevu.Entities.Concrete.BelirtiKaydi", "BelirtiKaydi")
+                        .WithOne("YzDegerlendirmesi")
+                        .HasForeignKey("AkilliRandevu.Entities.Concrete.YzDegerlendirmesi", "BelirtiKaydiId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AkilliRandevu.Entities.Concrete.Bolum", "OnerilenBolum")
+                        .WithMany()
+                        .HasForeignKey("OnerilenBolumId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("BelirtiKaydi");
+
+                    b.Navigation("OnerilenBolum");
+                });
+
             modelBuilder.Entity("AkilliRandevu.Entities.Concrete.Hasta", b =>
                 {
                     b.HasOne("AkilliRandevu.Entities.Concrete.Kullanici", "Kullanici")
@@ -1568,6 +1650,8 @@ namespace AkilliRandevu.DataAccess.Migrations
                     b.Navigation("Belirtiler");
 
                     b.Navigation("Randevu");
+
+                    b.Navigation("YzDegerlendirmesi");
                 });
 
             modelBuilder.Entity("AkilliRandevu.Entities.Concrete.Bildirim", b =>

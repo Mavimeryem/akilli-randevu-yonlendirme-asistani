@@ -1,5 +1,6 @@
 using AkilliRandevu.Business.Abstract;
 using AkilliRandevu.Business.Dtos;
+using AkilliRandevu.Business.YapayZeka;
 using AkilliRandevu.Business.Yonlendirme;
 using AkilliRandevu.DataAccess.Abstract;
 using AkilliRandevu.Entities.Concrete;
@@ -19,6 +20,8 @@ public class BelirtiService : IBelirtiService
     private readonly IBelirtiKaydiRepository _kayitlar;
     private readonly IBolumRepository _bolumler;
     private readonly IRepository<Hasta> _hastalar;
+    private readonly IRepository<YzDegerlendirmesi> _yzDegerlendirmeleri;
+    private readonly IBolumOneriAsistani _asistan;
     private readonly TimeProvider _zaman;
 
     public BelirtiService(
@@ -26,19 +29,29 @@ public class BelirtiService : IBelirtiService
         IBelirtiKaydiRepository kayitlar,
         IBolumRepository bolumler,
         IRepository<Hasta> hastalar,
+        IRepository<YzDegerlendirmesi> yzDegerlendirmeleri,
+        IBolumOneriAsistani asistan,
         TimeProvider zaman)
     {
         _belirtiler = belirtiler;
         _kayitlar = kayitlar;
         _bolumler = bolumler;
         _hastalar = hastalar;
+        _yzDegerlendirmeleri = yzDegerlendirmeleri;
+        _asistan = asistan;
         _zaman = zaman;
     }
+
+    /// <summary>Yapay zekâya gönderilecek açıklamanın en az uzunluğu (anlamlı bir yorum için).</summary>
+    public const int YapayZekaEnAzMetin = 10;
+
+    public bool YapayZekaKullanilabilir => _asistan.Kullanilabilir;
 
     public async Task<List<Belirti>> BelirtileriGetirAsync() =>
         (await _belirtiler.GetAllAsync()).OrderBy(b => b.Ad).ToList();
 
-    public async Task<IslemSonucu<int>> DegerlendirAsync(int hastaId, IReadOnlyList<SecilenBelirti> belirtiler, string? aciklama)
+    public async Task<IslemSonucu<int>> DegerlendirAsync(
+        int hastaId, IReadOnlyList<SecilenBelirti> belirtiler, string? aciklama, bool yapayZekaOnayi = false, CancellationToken ct = default)
     {
         // --- Doğrulama ---
         if (belirtiler.Count < EnAzBelirti)
@@ -53,6 +66,8 @@ public class BelirtiService : IBelirtiService
         aciklama = string.IsNullOrWhiteSpace(aciklama) ? null : aciklama.Trim();
         if (aciklama?.Length > AciklamaUzunlugu)
             return Hata($"Açıklama en fazla {AciklamaUzunlugu} karakter olabilir.");
+        if (yapayZekaOnayi && (aciklama?.Length ?? 0) < YapayZekaEnAzMetin)
+            return Hata("Yapay zekâ değerlendirmesi için şikâyetinizi birkaç kelimeyle açıklama alanına yazın.");
 
         var idler = belirtiler.Select(b => b.BelirtiId).ToList();
         var katalog = await _belirtiler.WhereAsync(b => idler.Contains(b.Id));
@@ -79,7 +94,44 @@ public class BelirtiService : IBelirtiService
             OnerilenBolumId = sonuc.AcilMi ? null : sonuc.EnUygun?.BolumId,
             Belirtiler = belirtiler.Select(b => new BelirtiKaydiBelirti { BelirtiId = b.BelirtiId, Siddet = b.Siddet }).ToList()
         });
+
+        // --- Yapay zekâ (isteğe bağlı, hastanın onayıyla): kayıt kaydedildikten sonra, transaction dışında ---
+        if (yapayZekaOnayi && _asistan.Kullanilabilir)
+            await YapayZekaIleDegerlendirAsync(kayit, katalog, belirtiler, aciklama!, ct);
+
         return IslemSonucu<int>.Tamam(kayit.Id);
+    }
+
+    private async Task YapayZekaIleDegerlendirAsync(
+        BelirtiKaydi kayit, List<Belirti> katalog, IReadOnlyList<SecilenBelirti> belirtiler, string aciklama, CancellationToken ct)
+    {
+        var adlar = katalog.ToDictionary(b => b.Id, b => b.Ad);
+        var girdiler = belirtiler.Select(b => new YzBelirtiGirdisi(adlar[b.BelirtiId], b.Siddet)).ToList();
+        var bolumler = (await _bolumler.WhereAsync(b => b.AktifMi)).OrderBy(b => b.Id).ToList();
+
+        var yz = await _asistan.DegerlendirAsync(girdiler, aciklama, bolumler, ct);
+
+        await _yzDegerlendirmeleri.AddAsync(new YzDegerlendirmesi
+        {
+            BelirtiKaydiId = kayit.Id,
+            Durum = yz.Durum,
+            OnerilenBolumId = yz.Oneri?.BolumId,
+            Gerekce = yz.Oneri?.Gerekce,
+            Guven = yz.Oneri?.Guven,
+            AcilBelirtiVar = yz.Oneri?.AcilBelirtiVar ?? false,
+            AcilGerekce = yz.Oneri?.AcilGerekce,
+            Model = yz.Model,
+            IstemSurumu = yz.IstemSurumu,
+            SureMs = yz.SureMs,
+            Hata = yz.Hata
+        });
+
+        // Güvenlik yönü: yapay zekâ aciliyeti YÜKSELTEBİLİR ama düşüremez; "Acil" kararını yalnızca kurallar verir.
+        if (yz.Oneri?.AcilBelirtiVar == true && kayit.Aciliyet < AciliyetSeviyesi.Yuksek)
+        {
+            kayit.Aciliyet = AciliyetSeviyesi.Yuksek;
+            await _kayitlar.UpdateAsync(kayit);
+        }
     }
 
     public async Task<IslemSonucu<BelirtiKaydiDetayi>> KayitGetirAsync(int kayitId, Islemci kim)

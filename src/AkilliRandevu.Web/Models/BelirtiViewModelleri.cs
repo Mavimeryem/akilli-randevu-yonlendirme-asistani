@@ -19,4 +19,10 @@ public class BelirtiGirisViewModel
     [StringLength(1000, ErrorMessage = "Açıklama en fazla 1000 karakter olabilir.")]
     [Display(Name = "Eklemek istedikleriniz (isteğe bağlı)")]
     public string? Aciklama { get; set; }
+
+    /// <summary>Hastanın açık onayı: açıklama metni yapay zekâ ile değerlendirilsin mi?</summary>
+    public bool YapayZekaOnayi { get; set; }
+
+    /// <summary>Formda onay kutusunun gösterilip gösterilmeyeceği (anahtar ayarlı mı).</summary>
+    public bool YapayZekaKullanilabilir { get; set; }
 }
