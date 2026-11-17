@@ -486,3 +486,8 @@ $RECYCLE.BIN/
 *.db-shm
 *.db-wal
 
+
+# Test sonuçları ve kapsam raporları
+TestSonuclari/
+coverage*/
+

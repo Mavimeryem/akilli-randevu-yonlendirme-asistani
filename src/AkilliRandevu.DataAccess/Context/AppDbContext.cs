@@ -22,6 +22,7 @@ public class AppDbContext : DbContext
     public DbSet<BelirtiKaydiBelirti> BelirtiKaydiBelirtileri => Set<BelirtiKaydiBelirti>();
     public DbSet<Randevu> Randevular => Set<Randevu>();
     public DbSet<Bildirim> Bildirimler => Set<Bildirim>();
+    public DbSet<EpostaGonderimi> EpostaGonderimleri => Set<EpostaGonderimi>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -149,6 +150,21 @@ public class AppDbContext : DbContext
             e.HasOne(x => x.Kullanici)
              .WithMany(k => k.Bildirimler)
              .HasForeignKey(x => x.KullaniciId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 1-N: Bildirim - EpostaGonderimi (giden kutusu)
+        modelBuilder.Entity<EpostaGonderimi>(e =>
+        {
+            e.Property(x => x.Alici).HasMaxLength(200).IsRequired();
+            e.Property(x => x.SonHata).HasMaxLength(500);
+            e.Property(x => x.DisMesajId).HasMaxLength(200);
+            // Arka plan servisi: "bekleyen gönderimler, en eskiden yeniye"
+            e.HasIndex(x => new { x.Durum, x.OlusturmaTarihi });
+            e.ToTable(t => t.HasCheckConstraint("CK_EpostaGonderimi_Durum", "Durum BETWEEN 1 AND 4"));
+            e.HasOne(x => x.Bildirim)
+             .WithMany(b => b.EpostaGonderimleri)
+             .HasForeignKey(x => x.BildirimId)
              .OnDelete(DeleteBehavior.Cascade);
         });
 

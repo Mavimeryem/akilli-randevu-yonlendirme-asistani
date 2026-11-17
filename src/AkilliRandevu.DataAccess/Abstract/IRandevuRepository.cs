@@ -22,6 +22,12 @@ public interface IRandevuRepository : IRepository<Randevu>
     /// <summary>Hastanın aynı saatte (başka doktorda bile) iptal edilmemiş randevusu var mı?</summary>
     Task<bool> HastaCakismaVarMiAsync(int hastaId, DateTime baslangic, DateTime bitis);
 
+    /// <summary>
+    /// Hatırlatma gönderilecek randevular: (simdi, sinir] aralığında başlayan, beklemede/onaylı,
+    /// henüz hatırlatılmamış. Hasta, doktor ve bölüm bilgisiyle; değişiklik takibi açık.
+    /// </summary>
+    Task<List<Randevu>> GetHatirlatilacaklarAsync(DateTime simdi, DateTime sinir);
+
     /// <summary>Hastanın bu bölümde ileri tarihli, aktif (beklemede/onaylı) randevusu var mı?</summary>
     Task<bool> BolumdeAktifRandevuVarMiAsync(int hastaId, int bolumId, DateTime simdi);
 }

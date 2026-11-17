@@ -71,6 +71,17 @@ public class EfRandevuRepository : EfRepository<Randevu>, IRandevuRepository
                        && r.BaslangicZamani < bitis
                        && r.BitisZamani > baslangic);
 
+    public Task<List<Randevu>> GetHatirlatilacaklarAsync(DateTime simdi, DateTime sinir) =>
+        Set.Include(r => r.Hasta).ThenInclude(h => h.Kullanici)
+           .Include(r => r.Doktor).ThenInclude(d => d.Kullanici)
+           .Include(r => r.Doktor).ThenInclude(d => d.Bolum)
+           .Where(r => r.HatirlatmaTarihi == null
+                    && (r.Durum == RandevuDurumu.Beklemede || r.Durum == RandevuDurumu.Onaylandi)
+                    && r.BaslangicZamani > simdi
+                    && r.BaslangicZamani <= sinir)
+           .OrderBy(r => r.BaslangicZamani)
+           .ToListAsync();
+
     public Task<bool> BolumdeAktifRandevuVarMiAsync(int hastaId, int bolumId, DateTime simdi) =>
         Set.AnyAsync(r => r.HastaId == hastaId
                        && r.Doktor.BolumId == bolumId

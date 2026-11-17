@@ -6,6 +6,9 @@ namespace AkilliRandevu.Business.Takvim;
 /// </summary>
 public class TakvimAyarlari
 {
+    /// <summary>Poliklinik saat dilimi (IANA adı). Sunucu UTC'de çalışsa bile slotlar bu dilime göre hesaplanır.</summary>
+    public string SaatDilimi { get; set; } = "Europe/Istanbul";
+
     public TimeOnly MesaiBaslangic { get; set; } = new(9, 0);
     public TimeOnly MesaiBitis { get; set; } = new(17, 0);
     public TimeOnly OgleArasiBaslangic { get; set; } = new(12, 0);

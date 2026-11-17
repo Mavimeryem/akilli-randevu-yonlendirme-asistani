@@ -1,4 +1,5 @@
 using AkilliRandevu.Business.Abstract;
+using AkilliRandevu.Business.Bildirimler;
 using AkilliRandevu.Business.Dtos;
 using AkilliRandevu.Business.Takvim;
 using AkilliRandevu.DataAccess.Abstract;
@@ -15,9 +16,9 @@ public class RandevuService : IRandevuService
     private readonly IBolumRepository _bolumler;
     private readonly IRepository<Hasta> _hastalar;
     private readonly IBelirtiKaydiRepository _belirtiKayitlari;
-    private readonly IRepository<Bildirim> _bildirimler;
+    private readonly IBildirimService _bildirim;
     private readonly IIslemYoneticisi _islem;
-    private readonly TimeProvider _zaman;
+    private readonly ISaat _saat;
 
     public RandevuService(
         IRandevuRepository randevular,
@@ -25,26 +26,26 @@ public class RandevuService : IRandevuService
         IBolumRepository bolumler,
         IRepository<Hasta> hastalar,
         IBelirtiKaydiRepository belirtiKayitlari,
-        IRepository<Bildirim> bildirimler,
+        IBildirimService bildirim,
         IIslemYoneticisi islem,
         IOptions<TakvimAyarlari> ayarlar,
-        TimeProvider zaman)
+        ISaat saat)
     {
         _randevular = randevular;
         _doktorlar = doktorlar;
         _bolumler = bolumler;
         _hastalar = hastalar;
         _belirtiKayitlari = belirtiKayitlari;
-        _bildirimler = bildirimler;
+        _bildirim = bildirim;
         _islem = islem;
-        _zaman = zaman;
+        _saat = saat;
         Ayarlar = ayarlar.Value;
     }
 
     public TakvimAyarlari Ayarlar { get; }
 
-    // Randevu saatleri poliklinik yerel saatiyle tutulur.
-    public DateTime Simdi => _zaman.GetLocalNow().DateTime;
+    // Randevu saatleri poliklinik yerel saatiyle (Europe/Istanbul) tutulur; sunucunun saat dilimi önemsizdir.
+    public DateTime Simdi => _saat.Simdi;
 
     public Task<List<Randevu>> HastaGecmisiAsync(int hastaId) =>
         _randevular.GetHastaRandevulariAsync(hastaId);
@@ -189,8 +190,9 @@ public class RandevuService : IRandevuService
     public List<RandevuDurumu> IzinVerilenDurumlar(Randevu randevu, Islemci kim) =>
         RandevuDurumKurallari.IzinVerilenler(randevu, kim, Simdi, Ayarlar);
 
+    // Uygulama içi bildirim + e-posta giden kutusu kaydı (gönderimi arka plan servisi yapar).
     private Task BildirAsync(int kullaniciId, string baslik, string mesaj) =>
-        _bildirimler.AddAsync(new Bildirim { KullaniciId = kullaniciId, Baslik = baslik, Mesaj = mesaj });
+        _bildirim.OlusturAsync(kullaniciId, baslik, mesaj);
 
     private static IslemSonucu<Randevu> Hata(string mesaj) => IslemSonucu<Randevu>.Hatali(mesaj);
 }

@@ -1,4 +1,5 @@
 using AkilliRandevu.Business;
+using AkilliRandevu.Business.Bildirimler;
 using AkilliRandevu.Business.Takvim;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,10 @@ builder.Services.AddControllersWithViews(o =>
 });
 builder.Services.AddBusiness(builder.Configuration.GetConnectionString("Varsayilan")!);
 builder.Services.Configure<TakvimAyarlari>(builder.Configuration.GetSection("Takvim"));
+// E-posta API anahtarı appsettings.json'da DEĞİL; ortam değişkeninden gelir: Eposta__ApiAnahtari
+// (geliştirmede: dotnet user-secrets set "Eposta:ApiAnahtari" "...")
+builder.Services.Configure<EpostaAyarlari>(builder.Configuration.GetSection("Eposta"));
+builder.Services.Configure<BildirimAyarlari>(builder.Configuration.GetSection("Bildirim"));
 
 // Oturum: çerez tabanlı kimlik doğrulama.
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

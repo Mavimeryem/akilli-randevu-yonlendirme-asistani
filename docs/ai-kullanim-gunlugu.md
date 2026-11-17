@@ -66,6 +66,16 @@ Bu belge, proje boyunca yapay zekâ araçlarının hangi amaçlarla kullanıldı
 
 ---
 
+## Hafta 9 – Harici API Entegrasyonu (E-posta Bildirimi)
+
+| Görev | Araç | Kullanım amacı | Değerlendirme |
+|---|---|---|---|
+| Brevo API dokümantasyonu | Claude (Claude Code) | `POST /v3/smtp/email` istek/yanıt biçimi, `api-key` başlığı, hata kodları | İstek ve yanıt örnekleri testlere çevrildi (`BrevoEpostaGondericiTestleri`) |
+| Hata ve zaman aşımı yönetimi | Claude (Claude Code) | 429/`Retry-After`, 5xx üstel bekleme, kalıcı/geçici hata ayrımı | 7 birim testiyle (sahte HTTP sunucusu) GitHub Actions'ta doğrulandı |
+| Giden kutusu (outbox) ve hatırlatma zamanlayıcısı | Claude (Claude Code) | E-postanın transaction dışında gönderilmesi, aynı randevuya tek hatırlatma | Gerçek SQLite veritabanıyla testler; migration elle yazıldığı için model uyumu testi eklendi |
+
+---
+
 ## Genel Değerlendirme
 
 Yapay zekâ araçları bu projede şu amaçlarla kullanıldı:

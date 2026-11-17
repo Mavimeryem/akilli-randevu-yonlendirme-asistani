@@ -823,6 +823,52 @@ namespace AkilliRandevu.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("AkilliRandevu.Entities.Concrete.EpostaGonderimi", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Alici")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("BildirimId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DenemeSayisi")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DisMesajId")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Durum")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("GonderimTarihi")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("OlusturmaTarihi")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SonHata")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BildirimId");
+
+                    b.HasIndex("Durum", "OlusturmaTarihi");
+
+                    b.ToTable("EpostaGonderimleri", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_EpostaGonderimi_Durum", "Durum BETWEEN 1 AND 4");
+                        });
+                });
+
             modelBuilder.Entity("AkilliRandevu.Entities.Concrete.Hasta", b =>
                 {
                     b.Property<int>("Id")
@@ -1239,6 +1285,9 @@ namespace AkilliRandevu.DataAccess.Migrations
                     b.Property<int>("Durum")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime?>("HatirlatmaTarihi")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("HastaId")
                         .HasColumnType("INTEGER");
 
@@ -1459,6 +1508,17 @@ namespace AkilliRandevu.DataAccess.Migrations
                     b.Navigation("Kullanici");
                 });
 
+            modelBuilder.Entity("AkilliRandevu.Entities.Concrete.EpostaGonderimi", b =>
+                {
+                    b.HasOne("AkilliRandevu.Entities.Concrete.Bildirim", "Bildirim")
+                        .WithMany("EpostaGonderimleri")
+                        .HasForeignKey("BildirimId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bildirim");
+                });
+
             modelBuilder.Entity("AkilliRandevu.Entities.Concrete.Hasta", b =>
                 {
                     b.HasOne("AkilliRandevu.Entities.Concrete.Kullanici", "Kullanici")
@@ -1508,6 +1568,11 @@ namespace AkilliRandevu.DataAccess.Migrations
                     b.Navigation("Belirtiler");
 
                     b.Navigation("Randevu");
+                });
+
+            modelBuilder.Entity("AkilliRandevu.Entities.Concrete.Bildirim", b =>
+                {
+                    b.Navigation("EpostaGonderimleri");
                 });
 
             modelBuilder.Entity("AkilliRandevu.Entities.Concrete.Bolum", b =>

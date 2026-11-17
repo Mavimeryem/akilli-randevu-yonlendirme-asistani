@@ -68,4 +68,5 @@ Güvenlik kararları için [docs/guvenlik-notu.md](docs/guvenlik-notu.md), rande
 | 6 | Randevu takvimi ve yönetimi | ✅ |
 | 7 | Belirti girişi ve temel yönlendirme | ✅ |
 | 8 | Ara sürüm entegrasyonu ve vize hazırlık | ✅ |
-| 9–15 | … | ⏳ |
+| 9 | Harici API entegrasyonu: e-posta bildirim ve hatırlatma | ✅ |
+| 10–15 | … | ⏳ |

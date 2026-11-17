@@ -18,6 +18,9 @@ public class Randevu : BaseEntity
     public RandevuDurumu Durum { get; set; } = RandevuDurumu.Beklemede;
     public string? DoktorNotu { get; set; }
 
+    /// <summary>Hatırlatma bildiriminin oluşturulduğu an (UTC). Null ise henüz hatırlatılmadı.</summary>
+    public DateTime? HatirlatmaTarihi { get; set; }
+
     public Hasta Hasta { get; set; } = null!;
     public Doktor Doktor { get; set; } = null!;
     public BelirtiKaydi? BelirtiKaydi { get; set; }

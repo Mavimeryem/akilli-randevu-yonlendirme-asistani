@@ -18,6 +18,7 @@ public static class DataAccessKayitlari
         services.AddScoped<IKullaniciRepository, EfKullaniciRepository>();
         services.AddScoped<IDoktorRepository, EfDoktorRepository>();
         services.AddScoped<IBelirtiKaydiRepository, EfBelirtiKaydiRepository>();
+        services.AddScoped<IBildirimRepository, EfBildirimRepository>();
         services.AddScoped<IIslemYoneticisi, EfIslemYoneticisi>();
         return services;
     }

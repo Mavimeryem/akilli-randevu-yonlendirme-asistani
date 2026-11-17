@@ -13,4 +13,5 @@ public class Bildirim : BaseEntity
     public bool OkunduMu { get; set; }
 
     public Kullanici Kullanici { get; set; } = null!;
+    public ICollection<EpostaGonderimi> EpostaGonderimleri { get; set; } = new List<EpostaGonderimi>();
 }

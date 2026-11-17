@@ -53,11 +53,17 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Yonetim" asp-action="Kullanicilar">Kullanıcılar</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Yonetim" asp-action="EpostaGonderimleri">E-posta</a>
+                            </li>
                         }
                     </ul>
                     <ul class="navbar-nav align-items-sm-center">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+                            <li class="nav-item">
+                                @await Component.InvokeAsync("OkunmamisBildirim")
+                            </li>
                             <li class="nav-item">
                                 <span class="navbar-text me-2">@User.Identity.Name</span>
                             </li>

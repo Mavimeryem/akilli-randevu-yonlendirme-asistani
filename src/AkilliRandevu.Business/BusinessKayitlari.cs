@@ -1,4 +1,5 @@
 using AkilliRandevu.Business.Abstract;
+using AkilliRandevu.Business.Bildirimler;
 using AkilliRandevu.Business.Concrete;
 using AkilliRandevu.Business.Takvim;
 using AkilliRandevu.DataAccess;
@@ -20,14 +21,27 @@ public static class BusinessKayitlari
     {
         services.AddDataAccess(connectionString);
 
-        services.AddOptions<TakvimAyarlari>();   // değerler Web katmanında appsettings'ten bağlanır
+        // Ayar değerleri Web katmanında appsettings / ortam değişkenlerinden bağlanır.
+        services.AddOptions<TakvimAyarlari>();
+        services.AddOptions<EpostaAyarlari>();
+        services.AddOptions<BildirimAyarlari>();
+
         services.AddMemoryCache();
         services.AddSingleton(TimeProvider.System);
+        services.AddSingleton<ISaat, PoliklinikSaati>();
         services.AddSingleton<ISifreHasher, Pbkdf2SifreHasher>();
         services.AddSingleton<IGirisDenemeTakipcisi, BellekGirisDenemeTakipcisi>();
         services.AddScoped<IKullaniciService, KullaniciService>();
         services.AddScoped<IRandevuService, RandevuService>();
         services.AddScoped<IBelirtiService, BelirtiService>();
+
+        // Bildirim: uygulama içi + e-posta giden kutusu + hatırlatma zamanlayıcısı
+        services.AddHttpClient<IEpostaGonderici, BrevoEpostaGonderici>(c =>
+            c.Timeout = TimeSpan.FromSeconds(60)); // her denemenin kendi zaman aşımı ayrıca var (EpostaAyarlari)
+        services.AddScoped<IBildirimService, BildirimService>();
+        services.AddScoped<IHatirlatmaServisi, HatirlatmaServisi>();
+        services.AddScoped<IEpostaKuyrugu, EpostaKuyrugu>();
+        services.AddHostedService<BildirimArkaPlanServisi>();
         return services;
     }
 
