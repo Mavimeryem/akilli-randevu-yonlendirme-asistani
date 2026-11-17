@@ -30,7 +30,7 @@ Bu belge, proje boyunca yapay zekâ araçlarının hangi amaçlarla kullanıldı
 | Görev | Araç | Kullanım amacı | Değerlendirme |
 |---|---|---|---|
 | Cookie tabanlı kimlik doğrulama | Claude | ASP.NET Core cookie auth yapılandırması | Kod şablonu alındı, `SlidingExpiration` ve `HttpOnly` ayarları elle eklendi |
-| Şifre hashleme | Claude | BCrypt vs ASP.NET Identity karşılaştırması | BCrypt seçildi; `PasswordHasher` belgesi okundu ve benimsendi |
+| Şifre hashleme | Claude | Parola hash yöntemleri (PBKDF2, BCrypt, Argon2) karşılaştırması | .NET'te ek paket gerektirmeyen PBKDF2-SHA256 (600.000 tekrar, rastgele tuz) seçildi – `Pbkdf2SifreHasher` |
 | Rol tabanlı yetkilendirme | Claude | `[Authorize(Roles)]` kullanımı | Öneri doğruydu; IDOR koruması ayrıca elle eklendi |
 
 ---

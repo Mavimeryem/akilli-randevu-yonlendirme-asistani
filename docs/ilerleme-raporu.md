@@ -11,7 +11,7 @@ ara sürüm (v0.8.0) olarak etiketlendi. Tüm modüller uçtan uca entegre çal�
 |---|---|---|
 | Katmanlı mimari ve veri modeli | ✅ | Hafta 3 |
 | Veritabanı ve EF Core | ✅ | Hafta 4; SQLite, migration, seed veri |
-| Kimlik doğrulama ve roller | ✅ | Hafta 5; cookie auth, BCrypt, 3 rol |
+| Kimlik doğrulama ve roller | ✅ | Hafta 5; cookie auth, PBKDF2-SHA256 parola hash'i, 3 rol |
 | Randevu takvimi | ✅ | Hafta 6; slot üretici, durum makinesi, çakışma koruması |
 | Belirti girişi ve yönlendirme | ✅ | Hafta 7; kural motoru, aciliyet, bölüm önerisi |
 | Ara sürüm entegrasyonu | ✅ | Hafta 8; uçtan uca test, hata giderme, etiket |

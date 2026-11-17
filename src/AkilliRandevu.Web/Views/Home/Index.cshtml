@@ -1,4 +1,3 @@
-@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Ortam
 @{
     ViewData["Title"] = "Ana sayfa";
 }
@@ -22,15 +21,3 @@
         }
     }
 </div>
-
-@if (Ortam.IsDevelopment())
-{
-    <div class="alert alert-info mx-auto" style="max-width: 36rem">
-        <strong>Geliştirme ortamı – sentetik test hesapları</strong> (şifre: <code>@AkilliRandevu.Business.BusinessKayitlari.DemoSifre</code>)
-        <ul class="mb-0">
-            <li>Yönetici: <code>yonetici@ornek.test</code></li>
-            <li>Doktor: <code>doktor1@ornek.test</code> … <code>doktor10@ornek.test</code></li>
-            <li>Hasta: <code>hasta1@ornek.test</code> … <code>hasta8@ornek.test</code></li>
-        </ul>
-    </div>
-}
