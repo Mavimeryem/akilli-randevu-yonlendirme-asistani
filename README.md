@@ -72,4 +72,5 @@ Güvenlik kararları için [docs/guvenlik-notu.md](docs/guvenlik-notu.md), rande
 | 10 | Yapay zekâ bileşeni: belirtiden bölüm yönlendirme (Claude) | ✅ |
 | 11 | Hasta geçmişi modülü | ✅ |
 | 12 | Randevu istatistikleri ve sıra panosu | ✅ |
-| 13–15 | … | ⏳ |
+| 13 | Test ve hata ayıklama (164 test, %89,7 satır kapsamı) | ✅ |
+| 14–15 | … | ⏳ |

@@ -17,10 +17,10 @@ jobs:
 
     steps:
       - name: Kodu al
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: .NET 10 kur
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
@@ -69,13 +69,13 @@ jobs:
           satir=$(grep -m1 "Line coverage" TestSonuclari/kapsam/Summary.txt | awk '{print $3}')
           dal=$(grep -m1 "Branch coverage" TestSonuclari/kapsam/Summary.txt | awk '{print $3}')
           echo "::notice title=Kod kapsamı::Satır $satir · dal $dal"
-          grep -E "^  AkilliRandevu\.(Business|DataAccess|Web|Entities) " TestSonuclari/kapsam/Summary.txt | while read -r satir; do
+          grep -E "^AkilliRandevu\.(Business|DataAccess|Web|Entities) " TestSonuclari/kapsam/Summary.txt | while read -r satir; do
             echo "::notice title=Kapsam (proje)::$satir"
           done
 
       - name: Test ve kapsam sonuçlarını sakla
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: test-sonuclari
           path: TestSonuclari

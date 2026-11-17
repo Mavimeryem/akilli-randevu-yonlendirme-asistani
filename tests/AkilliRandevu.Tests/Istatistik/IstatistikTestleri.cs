@@ -95,13 +95,13 @@ public class IstatistikTestleri : IDisposable
     }
 
     [Fact]
-    public void Ornek_veriyle_Ekim_2026_istatistikleri()
+    public async Task Ornek_veriyle_Ekim_2026_istatistikleri()
     {
-        using var db = _vt.YeniContext();
+        await using var db = _vt.YeniContext();
         var servis = new IstatistikService(new EfIstatistikRepository(db), new SabitSaat(new DateTime(2026, 11, 17, 10, 0, 0)),
             Options.Create(new TakvimAyarlari()));
 
-        var r = servis.RaporAsync(new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 31), null).Result.Veri!;
+        var r = (await servis.RaporAsync(new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 31), null)).Veri!;
 
         Assert.Equal(10, r.Toplam);
         Assert.Equal(1, r.Iptal);
@@ -191,13 +191,13 @@ public class IstatistikTestleri : IDisposable
     }
 
     [Fact]
-    public void Randevu_csv_hasta_adi_icermez()
+    public async Task Randevu_csv_hasta_adi_icermez()
     {
-        using var db = _vt.YeniContext();
+        await using var db = _vt.YeniContext();
         var servis = new IstatistikService(new EfIstatistikRepository(db), new SabitSaat(new DateTime(2026, 11, 17)),
             Options.Create(new TakvimAyarlari()));
 
-        var csv = servis.RandevularCsvAsync(new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 31), null).Result.Veri!;
+        var csv = (await servis.RandevularCsvAsync(new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 31), null)).Veri!;
 
         Assert.Equal(11, csv.Split("\r\n", StringSplitOptions.RemoveEmptyEntries).Length); // başlık + 10 randevu
         Assert.DoesNotContain("Deniz", csv);   // hasta1'in adı

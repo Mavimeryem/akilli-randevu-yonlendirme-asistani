@@ -94,7 +94,7 @@ Bu hafta yapay zekâ hem geliştirme aracı hem de **ürünün parçası** olara
 
 | Görev | Araç | Kullanım amacı | Değerlendirme |
 |---|---|---|---|
-| Erişim kuralları | Claude (Claude Code) | Hasta / doktor (tedavi ilişkisi) / yönetici (tıbbi içerik gizli) ayrımı, yetkisiz istekte 404 | 17 testle doğrulandı (yetkili/yetkisiz, maskeleme, erişim izi) |
+| Erişim kuralları | Claude (Claude Code) | Hasta / doktor (tedavi ilişkisi) / yönetici (tıbbi içerik gizli) ayrımı, yetkisiz istekte 404 | 18 testle doğrulandı (yetkili/yetkisiz, maskeleme, erişim izi) |
 | Geçmiş veri modeli ve filtreler | Claude (Claude Code) | Randevu + belirti kayıtlarının tek zaman çizelgesinde birleşmesi, saat dilimi farkı, sayfalama | Filtre sonuçları örnek veriyle tek tek sayıldı ve testlere yazıldı |
 
 ---
@@ -106,6 +106,15 @@ Bu hafta yapay zekâ hem geliştirme aracı hem de **ürünün parçası** olara
 | Metrik tanımları ve hesap | Claude (Claude Code) | Doluluk/kapasite, iptal ve gelmeme oranı, eksik veri ve sıfıra bölme durumları | Beklenen değerler örnek veriden elle hesaplanıp testlere yazıldı (ör. kapasite 10 × 22 × 21) |
 | Görselleştirme seçenekleri | Claude (Claude Code) | Hangi veri için hangi grafik, renk ve erişilebilirlik kuralları | Tek ton, renk dışında sayı/işaret, tablo görünümü; grafikler kütüphanesiz SVG |
 | CSV dışa aktarma | Claude (Claude Code) | Türkçe Excel biçimi ve CSV enjeksiyonu koruması | Testlerle doğrulandı |
+
+---
+
+## Hafta 13 – Test ve Hata Ayıklama
+
+| Görev | Araç | Kullanım amacı | Değerlendirme |
+|---|---|---|---|
+| Test senaryoları ve sınır durumları | Claude (Claude Code) | Kritik kurallar, sınır değerleri, entegrasyon ve uçtan uca senaryolar | 164 test CI'da geçti; beklenen değerler örnek veriden elle hesaplandı |
+| Hata taraması | Claude (Claude Code) | Bulut sunucuda (UTC) bozulabilecek saat kullanımları | H-03 bulundu ve düzeltildi; regresyon testi eklendi (`docs/hata-listesi.md`) |
 
 ---
 
