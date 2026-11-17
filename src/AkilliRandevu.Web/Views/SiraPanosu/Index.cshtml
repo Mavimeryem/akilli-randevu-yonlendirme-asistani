@@ -1,0 +1,78 @@
+@model SiraPanosuViewModel
+@{
+    ViewData["Title"] = "Sıra panosu";
+}
+@section Head {
+    <meta http-equiv="refresh" content="60" />
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-0">Sıra panosu</h1>
+        <small class="text-muted">@Model.Simdi.ToString("dd.MM.yyyy HH:mm") · sayfa her dakika yenilenir · hasta adları maskelidir</small>
+    </div>
+    <form method="get" class="d-flex gap-2">
+        <label class="visually-hidden" for="bolumId">Bölüm</label>
+        <select class="form-select form-select-sm" id="bolumId" name="bolumId" onchange="this.form.submit()">
+            <option value="">Tüm bölümler</option>
+            @foreach (var b in Model.Bolumler)
+            {
+                <option value="@b.Id" selected="@(b.Id == Model.BolumId)">@b.Ad</option>
+            }
+        </select>
+        <noscript><button class="btn btn-sm btn-outline-primary">Göster</button></noscript>
+    </form>
+</div>
+
+@if (Model.Siralar.Count == 0)
+{
+    <p class="text-muted">Gösterilecek doktor yok.</p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+        @foreach (var s in Model.Siralar)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between">
+                        <strong>@s.DoktorAdi</strong>
+                        <span class="text-muted small">@s.BolumAdi</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2">
+                            <span class="text-muted small d-block">Şu an muayenede</span>
+                            @if (s.SuAnki is { } su)
+                            {
+                                <span>● <strong>@su.MaskeliAd</strong> <small class="text-muted">@su.Baslangic.ToString("HH:mm")–@su.Bitis.ToString("HH:mm")</small></span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">○ boş</span>
+                            }
+                        </p>
+                        <p class="mb-2">
+                            <span class="text-muted small d-block">Sıradaki</span>
+                            @if (s.Siradaki is { } sr)
+                            {
+                                <span><strong>@sr.MaskeliAd</strong> · @sr.Baslangic.ToString("HH:mm")
+                                    <small class="text-muted">(yaklaşık @s.TahminiBeklemeDakika dk sonra)</small></span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Bugün bekleyen randevu yok</span>
+                            }
+                        </p>
+                        <div class="d-flex flex-wrap gap-3 small text-muted border-top pt-2">
+                            <span>Kalan: <strong class="text-body">@s.KalanRandevu</strong></span>
+                            <span>Bugün: @s.BugunToplam</span>
+                            <span>✓ Tamamlanan: @s.Tamamlanan</span>
+                            <span>✗ Gelmedi: @s.Gelmedi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <p class="small text-muted mt-3">Tahmini bekleme, sıradaki randevunun planlanan saatine göre hesaplanır; muayene gecikmeleri hesaba katılmaz.</p>
+}

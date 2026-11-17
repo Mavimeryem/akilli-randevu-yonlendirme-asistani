@@ -99,6 +99,16 @@ Bu hafta yapay zekâ hem geliştirme aracı hem de **ürünün parçası** olara
 
 ---
 
+## Hafta 12 – Randevu İstatistikleri ve Sıra Panosu
+
+| Görev | Araç | Kullanım amacı | Değerlendirme |
+|---|---|---|---|
+| Metrik tanımları ve hesap | Claude (Claude Code) | Doluluk/kapasite, iptal ve gelmeme oranı, eksik veri ve sıfıra bölme durumları | Beklenen değerler örnek veriden elle hesaplanıp testlere yazıldı (ör. kapasite 10 × 22 × 21) |
+| Görselleştirme seçenekleri | Claude (Claude Code) | Hangi veri için hangi grafik, renk ve erişilebilirlik kuralları | Tek ton, renk dışında sayı/işaret, tablo görünümü; grafikler kütüphanesiz SVG |
+| CSV dışa aktarma | Claude (Claude Code) | Türkçe Excel biçimi ve CSV enjeksiyonu koruması | Testlerle doğrulandı |
+
+---
+
 ## Genel Değerlendirme
 
 Yapay zekâ araçları bu projede şu amaçlarla kullanıldı:

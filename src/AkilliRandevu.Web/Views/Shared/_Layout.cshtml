@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/AkilliRandevu.Web.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Head", required: false)
 </head>
 <body>
     <header>
@@ -47,11 +48,20 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Gecmis" asp-action="Hastalarim">Hastalarım</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="SiraPanosu" asp-action="Index">Sıra panosu</a>
+                            </li>
                         }
                         @if (User.IsInRole(Roller.Yonetici))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Yonetim" asp-action="Randevular">Randevular</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Istatistik" asp-action="Index">İstatistik</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="SiraPanosu" asp-action="Index">Sıra panosu</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Yonetim" asp-action="Kullanicilar">Kullanıcılar</a>

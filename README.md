@@ -71,4 +71,5 @@ Güvenlik kararları için [docs/guvenlik-notu.md](docs/guvenlik-notu.md), rande
 | 9 | Harici API entegrasyonu: e-posta bildirim ve hatırlatma | ✅ |
 | 10 | Yapay zekâ bileşeni: belirtiden bölüm yönlendirme (Claude) | ✅ |
 | 11 | Hasta geçmişi modülü | ✅ |
-| 12–15 | … | ⏳ |
+| 12 | Randevu istatistikleri ve sıra panosu | ✅ |
+| 13–15 | … | ⏳ |

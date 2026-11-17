@@ -1,0 +1,238 @@
+@using System.Globalization
+@using AkilliRandevu.Business.Istatistik
+@model IstatistikViewModel
+@{
+    ViewData["Title"] = "Randevu istatistikleri";
+    var r = Model.Rapor;
+    var tr = CultureInfo.GetCultureInfo("tr-TR");
+    string Yuzde(double? o) => o is { } v ? "%" + (v * 100).ToString("0.#", tr) : "—";
+    string Gun(DayOfWeek g) => g switch
+    {
+        DayOfWeek.Monday => "Pzt", DayOfWeek.Tuesday => "Sal", DayOfWeek.Wednesday => "Çar",
+        DayOfWeek.Thursday => "Per", DayOfWeek.Friday => "Cum", DayOfWeek.Saturday => "Cmt", _ => "Paz"
+    };
+    string Iso(DateOnly d) => d.ToString("yyyy-MM-dd");
+    var b = Model.Bugun;
+    var araliklar = new[]
+    {
+        ("Son 7 gün", b.AddDays(-6), b),
+        ("Son 30 gün", b.AddDays(-29), b),
+        ("Son 90 gün", b.AddDays(-89), b),
+        ("Bu ay", new DateOnly(b.Year, b.Month, 1), b),
+        ("Önümüzdeki 14 gün", b, b.AddDays(13))
+    };
+    object Rota(DateOnly bas, DateOnly bit) => new { baslangic = Iso(bas), bitis = Iso(bit), bolumId = Model.BolumId };
+
+    // Isı haritası: tek renk tonu (mavi), açıktan koyuya. 0 değeri nötr gri.
+    string[] rampa = ["#cde2fb", "#b7d3f6", "#9ec5f4", "#86b6ef", "#6da7ec", "#5598e7", "#3987e5", "#2a78d6", "#256abf", "#1c5cab", "#184f95"];
+    int enCok = Math.Max(1, r.Yogunluk.Select(h => h.Sayi).DefaultIfEmpty(0).Max());
+    (string Zemin, string Yazi) HucreRengi(int sayi)
+    {
+        if (sayi == 0) return ("var(--viz-sifir)", "var(--viz-ink-muted)");
+        int i = Math.Clamp((int)Math.Ceiling(sayi / (double)enCok * rampa.Length) - 1, 0, rampa.Length - 1);
+        return (rampa[i], i >= 7 ? "#ffffff" : "var(--viz-ink)");
+    }
+
+    // Günlük sütun grafiği (SVG)
+    int n = r.Gunluk.Count;
+    double adim = 14, genislik = Math.Max(320, n * adim), yukseklik = 170, ust = 12, alt = 22, sol = 28;
+    double cizimY = yukseklik - ust - alt;
+    int maxGun = Math.Max(1, r.Gunluk.Select(g => g.Aktif).DefaultIfEmpty(0).Max());
+    double barW = Math.Max(2, adim - 2);
+    string Sutun(int i, int deger)
+    {
+        double h = deger / (double)maxGun * cizimY;
+        double x = sol + i * adim, y0 = ust + cizimY, rr = Math.Min(Math.Min(4, barW / 2), h);
+        var c = CultureInfo.InvariantCulture;
+        return string.Format(c, "M{0:0.##},{1:0.##} V{2:0.##} Q{0:0.##},{3:0.##} {4:0.##},{3:0.##} H{5:0.##} Q{6:0.##},{3:0.##} {6:0.##},{2:0.##} V{1:0.##} Z",
+            x, y0, y0 - h + rr, y0 - h, x + rr, x + barW - rr, x + barW);
+    }
+}
+
+<style>
+    .viz-root {
+        --viz-surface: #fcfcfb;
+        --viz-ink: #0b0b0b;
+        --viz-ink-2: #52514e;
+        --viz-ink-muted: #898781;
+        --viz-grid: #e1e0d9;
+        --viz-axis: #c3c2b7;
+        --viz-seri: #2a78d6;
+        --viz-iz: #e1e0d9;
+        --viz-sifir: #f0efec;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    .viz-kart { background: var(--viz-surface); border: 1px solid rgba(11,11,11,.1); border-radius: .5rem; padding: 1rem; }
+    .viz-kutu .deger { font-size: 2rem; line-height: 1.1; color: var(--viz-ink); }
+    .viz-kutu .etiket { color: var(--viz-ink-2); font-size: .875rem; }
+    .viz-kutu .alt { color: var(--viz-ink-muted); font-size: .8rem; }
+    .meter { display: grid; grid-template-columns: minmax(8rem, 12rem) 1fr 7.5rem; gap: .5rem 1rem; align-items: center; }
+    .meter-iz { height: 8px; background: var(--viz-iz); border-radius: 4px; overflow: hidden; }
+    .meter-dolu { height: 100%; background: var(--viz-seri); border-radius: 4px; }
+    .meter .sayi { font-variant-numeric: tabular-nums; text-align: right; color: var(--viz-ink-2); font-size: .875rem; }
+    @@media (max-width: 576px) { .meter { grid-template-columns: 1fr auto; } .meter-iz { grid-column: 1 / -1; order: 3; } }
+    .isi td { width: 3.2rem; height: 2rem; text-align: center; font-size: .8rem; font-variant-numeric: tabular-nums; border: 2px solid var(--viz-surface); border-radius: 6px; }
+    .isi th { font-weight: 500; color: var(--viz-ink-2); font-size: .8rem; padding: 0 .5rem; }
+    .sutun:hover, .sutun:focus { opacity: .8; outline: none; }
+</style>
+
+<div class="viz-root">
+    <h1 class="h3 mb-3">Randevu istatistikleri</h1>
+
+    @* Filtreler: tek satır *@
+    <form method="get" class="d-flex flex-wrap gap-2 align-items-end mb-2">
+        <div>
+            <label class="form-label small mb-0" for="baslangic">Başlangıç</label>
+            <input class="form-control form-control-sm" type="date" id="baslangic" name="baslangic" value="@Iso(r.Baslangic)" />
+        </div>
+        <div>
+            <label class="form-label small mb-0" for="bitis">Bitiş</label>
+            <input class="form-control form-control-sm" type="date" id="bitis" name="bitis" value="@Iso(r.Bitis)" />
+        </div>
+        <div>
+            <label class="form-label small mb-0" for="bolumId">Bölüm</label>
+            <select class="form-select form-select-sm" id="bolumId" name="bolumId">
+                <option value="">Tüm bölümler</option>
+                @foreach (var bl in Model.Bolumler)
+                {
+                    <option value="@bl.Id" selected="@(bl.Id == Model.BolumId)">@bl.Ad</option>
+                }
+            </select>
+        </div>
+        <button class="btn btn-sm btn-primary" type="submit">Göster</button>
+        <div class="ms-auto d-flex gap-2">
+            <a class="btn btn-sm btn-outline-secondary" asp-action="BolumlerCsv" asp-all-route-data="@(new Dictionary<string, string> { ["baslangic"] = Iso(r.Baslangic), ["bitis"] = Iso(r.Bitis), ["bolumId"] = Model.BolumId?.ToString() ?? "" })">Bölüm istatistikleri (CSV)</a>
+            <a class="btn btn-sm btn-outline-secondary" asp-action="RandevularCsv" asp-all-route-data="@(new Dictionary<string, string> { ["baslangic"] = Iso(r.Baslangic), ["bitis"] = Iso(r.Bitis), ["bolumId"] = Model.BolumId?.ToString() ?? "" })">Randevu listesi (CSV)</a>
+        </div>
+    </form>
+    <div class="d-flex flex-wrap gap-1 mb-3">
+        @foreach (var (ad, bas, bit) in araliklar)
+        {
+            var secili = bas == r.Baslangic && bit == r.Bitis;
+            <a class="btn btn-sm @(secili ? "btn-secondary" : "btn-outline-secondary")" href="@Url.Action("Index", Rota(bas, bit))">@ad</a>
+        }
+    </div>
+
+    <p class="small text-muted">@r.Baslangic.ToString("dd.MM.yyyy") – @r.Bitis.ToString("dd.MM.yyyy") · @(Model.BolumId is null ? "tüm bölümler" : Model.Bolumler.FirstOrDefault(x => x.Id == Model.BolumId)?.Ad)</p>
+
+    @if (r.Sonuclanmamis > 0)
+    {
+        <div class="alert alert-warning small" role="status">
+            ⚠ Saati geçmiş <strong>@r.Sonuclanmamis</strong> randevunun sonucu (tamamlandı / gelmedi) girilmemiş.
+            Gelmeme oranı yalnızca sonucu girilmiş randevulardan hesaplandı; bu kayıtlar girilince oran değişebilir.
+        </div>
+    }
+
+    @* Sayı kutuları *@
+    <div class="row row-cols-2 row-cols-lg-4 g-2 mb-3">
+        <div class="col"><div class="viz-kart viz-kutu h-100"><div class="etiket">Toplam randevu</div><div class="deger">@r.Toplam</div><div class="alt">@r.Aktif aktif · @r.Iptal iptal</div></div></div>
+        <div class="col"><div class="viz-kart viz-kutu h-100"><div class="etiket">Doluluk</div><div class="deger">@Yuzde(r.Doluluk)</div><div class="alt">@r.Aktif / @r.Kapasite slot</div></div></div>
+        <div class="col"><div class="viz-kart viz-kutu h-100"><div class="etiket">İptal oranı</div><div class="deger">@Yuzde(r.IptalOrani)</div><div class="alt">@r.Iptal / @r.Toplam randevu</div></div></div>
+        <div class="col"><div class="viz-kart viz-kutu h-100"><div class="etiket">Gelmeme oranı</div><div class="deger">@Yuzde(r.GelmemeOrani)</div><div class="alt">@r.Gelmedi / @(r.Tamamlanan + r.Gelmedi) sonuçlanan</div></div></div>
+    </div>
+
+    <div class="row g-3">
+        @* Bölüm doluluğu: her bölüm kendi kapasitesine göre *@
+        <div class="col-lg-7">
+            <div class="viz-kart h-100">
+                <h2 class="h6">Bölüm doluluğu</h2>
+                <p class="small text-muted">Aktif randevu ÷ kapasite (aktif doktor × çalışma günü × günlük slot)</p>
+                @if (r.Bolumler.Count == 0)
+                {
+                    <p class="text-muted small mb-0">Veri yok.</p>
+                }
+                <div class="meter">
+                    @foreach (var bl in r.Bolumler)
+                    {
+                        var oran = Math.Min(1, bl.Doluluk ?? 0);
+                        <div>@bl.BolumAdi</div>
+                        <div class="meter-iz" title="@bl.BolumAdi: @Yuzde(bl.Doluluk) doluluk (@bl.Aktif / @bl.Kapasite slot), iptal @Yuzde(bl.IptalOrani), gelmeme @Yuzde(bl.GelmemeOrani)">
+                            <div class="meter-dolu" style="width:@((oran * 100).ToString("0.##", CultureInfo.InvariantCulture))%"></div>
+                        </div>
+                        <div class="sayi">@Yuzde(bl.Doluluk) <span class="text-muted">(@bl.Aktif/@bl.Kapasite)</span></div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @* Gün × saat yoğunluğu *@
+        <div class="col-lg-5">
+            <div class="viz-kart h-100">
+                <h2 class="h6">Yoğun gün ve saatler</h2>
+                <p class="small text-muted">Aktif randevu sayısı · koyu = yoğun</p>
+                <div class="table-responsive">
+                    <table class="isi" aria-label="Gün ve saate göre aktif randevu sayısı">
+                        <thead><tr><th></th>@foreach (var g in r.Gunler) { <th scope="col">@Gun(g)</th> }</tr></thead>
+                        <tbody>
+                            @foreach (var s in r.Saatler)
+                            {
+                                <tr>
+                                    <th scope="row">@s.ToString("00"):00</th>
+                                    @foreach (var g in r.Gunler)
+                                    {
+                                        var sayi = r.Yogunluk.First(h => h.Gun == g && h.Saat == s).Sayi;
+                                        var (zemin, yazi) = HucreRengi(sayi);
+                                        <td style="background:@zemin;color:@yazi" title="@Gun(g) @s.ToString("00"):00–@((s + 1).ToString("00")):00 · @sayi randevu">@sayi</td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @* Günlük trend *@
+        <div class="col-12">
+            <div class="viz-kart">
+                <h2 class="h6">Günlük aktif randevu</h2>
+                <div style="overflow-x:auto">
+                    <svg viewBox="0 0 @((genislik + sol).ToString(CultureInfo.InvariantCulture)) @yukseklik" width="100%" style="min-width:@(Math.Min(genislik + sol, 900).ToString(CultureInfo.InvariantCulture))px;max-height:220px" role="img" aria-label="Günlere göre aktif randevu sayısı">
+                        @* Izgara: 0, yarı ve en yüksek değer *@
+                        @foreach (var oranY in new[] { 0.0, 0.5, 1.0 })
+                        {
+                            var y = ust + cizimY - oranY * cizimY;
+                            <line x1="@sol" x2="@((sol + n * adim).ToString(CultureInfo.InvariantCulture))" y1="@y.ToString(CultureInfo.InvariantCulture)" y2="@y.ToString(CultureInfo.InvariantCulture)" stroke="@(oranY == 0 ? "var(--viz-axis)" : "var(--viz-grid)")" stroke-width="1" />
+                            @:<text x="@(sol - 4)" y="@((y + 4).ToString(CultureInfo.InvariantCulture))" text-anchor="end" font-size="10" fill="var(--viz-ink-muted)">@(Math.Round(maxGun * oranY))</text>
+                        }
+                        @for (int i = 0; i < n; i++)
+                        {
+                            var gs = r.Gunluk[i];
+                            if (gs.Aktif > 0)
+                            {
+                                <path class="sutun" d="@Sutun(i, gs.Aktif)" fill="var(--viz-seri)" tabindex="0"><title>@gs.Gun.ToString("dd.MM.yyyy ddd", tr): @gs.Aktif aktif randevu@(gs.Iptal > 0 ? $", {gs.Iptal} iptal" : "")</title></path>
+                            }
+                            else
+                            {
+                                <rect x="@((sol + i * adim).ToString(CultureInfo.InvariantCulture))" y="@ust" width="@barW.ToString(CultureInfo.InvariantCulture)" height="@cizimY.ToString(CultureInfo.InvariantCulture)" fill="transparent"><title>@gs.Gun.ToString("dd.MM.yyyy ddd", tr): randevu yok</title></rect>
+                            }
+                            if (i == 0 || i == n - 1 || (n > 2 && i == n / 2))
+                            {
+                                @:<text x="@((sol + i * adim + barW / 2).ToString(CultureInfo.InvariantCulture))" y="@((yukseklik - 6).ToString(CultureInfo.InvariantCulture))" text-anchor="middle" font-size="10" fill="var(--viz-ink-muted)">@gs.Gun.ToString("dd.MM")</text>
+                            }
+                        }
+                    </svg>
+                </div>
+                <details class="mt-2">
+                    <summary class="small">Tablo olarak göster</summary>
+                    <div class="table-responsive" style="max-height: 20rem">
+                        <table class="table table-sm small mt-2">
+                            <thead><tr><th>Gün</th><th class="text-end">Aktif</th><th class="text-end">İptal</th></tr></thead>
+                            <tbody>
+                                @foreach (var gs in r.Gunluk)
+                                {
+                                    <tr><td>@gs.Gun.ToString("dd.MM.yyyy ddd", tr)</td><td class="text-end">@gs.Aktif</td><td class="text-end">@gs.Iptal</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <p class="small text-muted mt-3">
+        Tanımlar: <strong>Doluluk</strong> = aktif randevu ÷ kapasite. <strong>İptal oranı</strong> = iptal ÷ toplam randevu.
+        <strong>Gelmeme oranı</strong> = gelmedi ÷ (tamamlandı + gelmedi). Payda sıfırsa oran "—" gösterilir.
+    </p>
+</div>
