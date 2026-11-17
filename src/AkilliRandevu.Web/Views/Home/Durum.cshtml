@@ -1,0 +1,18 @@
+@model int
+@{
+    var (baslik, aciklama) = Model switch
+    {
+        404 => ("Sayfa bulunamadı", "Aradığınız sayfa ya da kayıt yok veya görüntüleme yetkiniz bulunmuyor."),
+        403 => ("Erişim engellendi", "Bu işlem için yetkiniz yok."),
+        400 => ("Geçersiz istek", "İstek işlenemedi. Sayfayı yenileyip tekrar deneyin."),
+        _ => ("Bir sorun oluştu", "İsteğiniz şu anda işlenemiyor.")
+    };
+    ViewData["Title"] = baslik;
+}
+
+<div class="text-center py-5">
+    <p class="display-6 text-muted mb-1">@Model</p>
+    <h1 class="h3">@baslik</h1>
+    <p class="text-muted">@aciklama</p>
+    <a class="btn btn-outline-primary" asp-controller="Home" asp-action="Index">Ana sayfaya dön</a>
+</div>

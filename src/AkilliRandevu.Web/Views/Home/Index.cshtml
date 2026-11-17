@@ -1,5 +1,28 @@
 @{
     ViewData["Title"] = "Ana sayfa";
+
+    // Role göre hızlı erişim kartları: (başlık, açıklama, controller, action, ana işlem mi)
+    var kartlar = new List<(string Baslik, string Aciklama, string Controller, string Action, bool Ana)>();
+    if (User.IsInRole(Roller.Hasta))
+    {
+        kartlar.Add(("Belirtilerimi gir", "Şikâyetinizi seçin; size uygun polikliniği önerelim.", "Belirti", "Giris", true));
+        kartlar.Add(("Randevu al", "Bölüm ve doktor seçip boş bir saate randevu alın.", "Randevu", "Al", false));
+        kartlar.Add(("Randevularım", "Yaklaşan randevularınızı görün, gerekirse iptal edin.", "Hasta", "Randevularim", false));
+        kartlar.Add(("Geçmişim", "Randevu ve belirti geçmişiniz, kimlerin görüntülediği.", "Gecmis", "Index", false));
+    }
+    if (User.IsInRole(Roller.Doktor))
+    {
+        kartlar.Add(("Takvimim", "Bugünkü randevularınız; onaylayın, sonuç ve not girin.", "Doktor", "Takvim", true));
+        kartlar.Add(("Hastalarım", "Randevunuz olan hastaların geçmişi.", "Gecmis", "Hastalarim", false));
+        kartlar.Add(("Sıra panosu", "Bugünkü sıra ve bekleme durumu.", "SiraPanosu", "Index", false));
+    }
+    if (User.IsInRole(Roller.Yonetici))
+    {
+        kartlar.Add(("İstatistik", "Doluluk, iptal ve gelmeme oranları, yoğun saatler.", "Istatistik", "Index", true));
+        kartlar.Add(("Randevular", "Günün tüm randevuları, bölüme göre.", "Yonetim", "Randevular", false));
+        kartlar.Add(("Sıra panosu", "Bugünkü sıra ve bekleme durumu.", "SiraPanosu", "Index", false));
+        kartlar.Add(("Kullanıcılar", "Hasta, doktor ve yönetici hesapları.", "Yonetim", "Kullanicilar", false));
+    }
 }
 
 <div class="text-center py-4">
@@ -10,14 +33,32 @@
     {
         <a class="btn btn-primary" asp-controller="Hesap" asp-action="Giris">Giriş yap</a>
         <a class="btn btn-outline-primary" asp-controller="Hesap" asp-action="Kayit">Kayıt ol</a>
+
+        <div class="row row-cols-1 row-cols-md-3 g-3 mt-4 text-start">
+            <div class="col"><div class="border rounded p-3 h-100"><h2 class="h6">1. Belirtilerinizi girin</h2><p class="small text-muted mb-0">Listeden seçin, şiddetini belirtin, isterseniz kendi cümlelerinizle yazın.</p></div></div>
+            <div class="col"><div class="border rounded p-3 h-100"><h2 class="h6">2. Bölüm önerisi alın</h2><p class="small text-muted mb-0">Kurallara (ve onay verirseniz yapay zekâya) göre uygun poliklinik, gerekçesiyle. Acil durumlar ayrıca uyarılır.</p></div></div>
+            <div class="col"><div class="border rounded p-3 h-100"><h2 class="h6">3. Randevunuzu alın</h2><p class="small text-muted mb-0">Boş saati seçin; onay ve hatırlatma bildirimleri size gelsin.</p></div></div>
+        </div>
     }
     else
     {
         <p>Hoş geldiniz, <strong>@User.Identity.Name</strong>.</p>
-        @if (User.IsInRole(Roller.Hasta))
-        {
-            <a class="btn btn-primary" asp-controller="Belirti" asp-action="Giris">Belirtilerimi gir</a>
-            <a class="btn btn-outline-primary" asp-controller="Randevu" asp-action="Al">Doğrudan randevu al</a>
-        }
     }
 </div>
+
+@if (kartlar.Count > 0)
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+        @foreach (var k in kartlar)
+        {
+            <div class="col">
+                <a class="card h-100 text-decoration-none @(k.Ana ? "border-primary" : "")" asp-controller="@k.Controller" asp-action="@k.Action">
+                    <div class="card-body">
+                        <h2 class="h6 card-title @(k.Ana ? "text-primary" : "text-body")">@k.Baslik</h2>
+                        <p class="card-text small text-muted mb-0">@k.Aciklama</p>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+}

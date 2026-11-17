@@ -1,8 +1,19 @@
-﻿<!DOCTYPE html>
+﻿@inject UygulamaBilgisi Uygulama
+@{
+    var aktifController = ViewContext.RouteData.Values["controller"] as string;
+    var aktifAction = ViewContext.RouteData.Values["action"] as string;
+    bool Aktif(string controller, string? action = null) =>
+        string.Equals(controller, aktifController, StringComparison.OrdinalIgnoreCase)
+        && (action is null || string.Equals(action, aktifAction, StringComparison.OrdinalIgnoreCase));
+    string Sinif(string controller, string? action = null) => Aktif(controller, action) ? "nav-link active" : "nav-link";
+    string? Gecerli(string controller, string? action = null) => Aktif(controller, action) ? "page" : null;
+}
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Belirtilerinize göre poliklinik önerisi alın ve randevunuzu oluşturun." />
     <title>@ViewData["Title"] - Akıllı Randevu</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -11,70 +22,47 @@
     @await RenderSectionAsync("Head", required: false)
 </head>
 <body>
+    <a class="icerige-gec" href="#icerik">İçeriğe geç</a>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3" aria-label="Ana menü">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Akıllı Randevu</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#anaMenu" aria-controls="anaMenu"
+                        aria-expanded="false" aria-label="Menüyü aç/kapat">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse justify-content-between" id="anaMenu">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Ana sayfa</a>
-                        </li>
                         @* Menüyü role göre göstermek sadece kolaylıktır; asıl koruma controller'lardaki [Authorize]'dır. *@
                         @if (User.IsInRole(Roller.Hasta))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Belirti" asp-action="Giris">Belirti gir</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Randevu" asp-action="Al">Randevu al</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Hasta" asp-action="Randevularim">Randevularım</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Gecmis" asp-action="Index">Geçmişim</a>
-                            </li>
+                            <li class="nav-item"><a class="@Sinif("Belirti", "Giris")" aria-current="@Gecerli("Belirti", "Giris")" asp-controller="Belirti" asp-action="Giris">Belirti gir</a></li>
+                            <li class="nav-item"><a class="@Sinif("Randevu", "Al")" aria-current="@Gecerli("Randevu", "Al")" asp-controller="Randevu" asp-action="Al">Randevu al</a></li>
+                            <li class="nav-item"><a class="@Sinif("Hasta")" aria-current="@Gecerli("Hasta")" asp-controller="Hasta" asp-action="Randevularim">Randevularım</a></li>
+                            <li class="nav-item"><a class="@Sinif("Gecmis")" aria-current="@Gecerli("Gecmis")" asp-controller="Gecmis" asp-action="Index">Geçmişim</a></li>
                         }
                         @if (User.IsInRole(Roller.Doktor))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Doktor" asp-action="Takvim">Takvimim</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Gecmis" asp-action="Hastalarim">Hastalarım</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="SiraPanosu" asp-action="Index">Sıra panosu</a>
-                            </li>
+                            <li class="nav-item"><a class="@Sinif("Doktor")" aria-current="@Gecerli("Doktor")" asp-controller="Doktor" asp-action="Takvim">Takvimim</a></li>
+                            <li class="nav-item"><a class="@Sinif("Gecmis")" aria-current="@Gecerli("Gecmis")" asp-controller="Gecmis" asp-action="Hastalarim">Hastalarım</a></li>
+                            <li class="nav-item"><a class="@Sinif("SiraPanosu")" aria-current="@Gecerli("SiraPanosu")" asp-controller="SiraPanosu" asp-action="Index">Sıra panosu</a></li>
                         }
                         @if (User.IsInRole(Roller.Yonetici))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Yonetim" asp-action="Randevular">Randevular</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Istatistik" asp-action="Index">İstatistik</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="SiraPanosu" asp-action="Index">Sıra panosu</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Yonetim" asp-action="Kullanicilar">Kullanıcılar</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Yonetim" asp-action="EpostaGonderimleri">E-posta</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Gecmis" asp-action="ErisimKayitlari">Erişim kayıtları</a>
+                            <li class="nav-item"><a class="@Sinif("Yonetim", "Randevular")" aria-current="@Gecerli("Yonetim", "Randevular")" asp-controller="Yonetim" asp-action="Randevular">Randevular</a></li>
+                            <li class="nav-item"><a class="@Sinif("Istatistik")" aria-current="@Gecerli("Istatistik")" asp-controller="Istatistik" asp-action="Index">İstatistik</a></li>
+                            <li class="nav-item"><a class="@Sinif("SiraPanosu")" aria-current="@Gecerli("SiraPanosu")" asp-controller="SiraPanosu" asp-action="Index">Sıra panosu</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Yönetim</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item @(Aktif("Yonetim", "Kullanicilar") ? "active" : "")" asp-controller="Yonetim" asp-action="Kullanicilar">Kullanıcılar</a></li>
+                                    <li><a class="dropdown-item @(Aktif("Yonetim", "EpostaGonderimleri") ? "active" : "")" asp-controller="Yonetim" asp-action="EpostaGonderimleri">E-posta gönderimleri</a></li>
+                                    <li><a class="dropdown-item @(Aktif("Gecmis", "ErisimKayitlari") ? "active" : "")" asp-controller="Gecmis" asp-action="ErisimKayitlari">Erişim kayıtları</a></li>
+                                </ul>
                             </li>
                         }
                     </ul>
-                    <ul class="navbar-nav align-items-sm-center">
+                    <ul class="navbar-nav align-items-lg-center">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
@@ -92,10 +80,10 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Hesap" asp-action="Giris">Giriş</a>
+                                <a class="nav-link" asp-controller="Hesap" asp-action="Giris">Giriş</a>
                             </li>
                             <li class="nav-item">
-                                <a class="btn btn-sm btn-primary ms-sm-2" asp-controller="Hesap" asp-action="Kayit">Kayıt ol</a>
+                                <a class="btn btn-sm btn-primary ms-lg-2" asp-controller="Hesap" asp-action="Kayit">Kayıt ol</a>
                             </li>
                         }
                     </ul>
@@ -104,7 +92,7 @@
         </nav>
     </header>
     <div class="container">
-        <main role="main" class="pb-3">
+        <main id="icerik" tabindex="-1" class="pb-3">
             @if (TempData["Mesaj"] is string mesaj)
             {
                 <div class="alert alert-success" role="status">@mesaj</div>
@@ -117,9 +105,16 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Akıllı Randevu ve Poliklinik Yönlendirme Asistanı
+    <footer class="border-top text-muted small py-3 mt-4">
+        <div class="container d-flex flex-wrap justify-content-between gap-2">
+            <span>&copy; 2026 Akıllı Randevu ve Poliklinik Yönlendirme Asistanı · P06 ders projesi</span>
+            <span>
+                <a class="link-secondary" asp-controller="Home" asp-action="Gizlilik">Gizlilik ve KVKK</a>
+                @if (Uygulama.DemoModu)
+                {
+                    <span class="ms-2">· Demo sürümü: gerçek bir sağlık kuruluşu değildir, veriler sentetiktir.</span>
+                }
+            </span>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

@@ -59,6 +59,33 @@ public static class BusinessKayitlari
         services.VeritabaniniGuncelleAsync();
 
     /// <summary>
+    /// Gerçek kullanım için ilk yönetici hesabı. Bu e-postayla kullanıcı yoksa yönetici olarak oluşturulur;
+    /// varsa dokunulmaz (her açılışta şifre sıfırlanmaz). Şifre kuralına uymuyorsa uygulama başlamaz.
+    /// </summary>
+    public static async Task IlkYoneticiyiHazirlaAsync(this IServiceProvider services, string eposta, string sifre)
+    {
+        using var scope = services.CreateScope();
+        var kullanicilar = scope.ServiceProvider.GetRequiredService<IKullaniciRepository>();
+        var hasher = scope.ServiceProvider.GetRequiredService<ISifreHasher>();
+
+        eposta = KullaniciService.EpostaNormallestir(eposta);
+        if (await kullanicilar.AnyAsync(k => k.Eposta == eposta))
+            return;
+        if (sifre.Length < KullaniciService.MinimumSifreUzunlugu || !sifre.Any(char.IsLetter) || !sifre.Any(char.IsDigit))
+            throw new InvalidOperationException(
+                $"IlkYonetici__Sifre en az {KullaniciService.MinimumSifreUzunlugu} karakter olmalı ve harf ile rakam içermelidir.");
+
+        await kullanicilar.AddAsync(new Entities.Concrete.Kullanici
+        {
+            Ad = "Sistem",
+            Soyad = "Yöneticisi",
+            Eposta = eposta,
+            SifreHash = hasher.Hashle(sifre),
+            Rol = Entities.Enums.Rol.Yonetici
+        });
+    }
+
+    /// <summary>
     /// Sentetik kullanıcıların yer tutucu şifresini <see cref="DemoSifre"/>'nin gerçek hash'iyle değiştirir.
     /// Her kullanıcı ayrı rastgele tuz alır. Yalnızca geliştirme ortamında çağrılmalıdır.
     /// </summary>

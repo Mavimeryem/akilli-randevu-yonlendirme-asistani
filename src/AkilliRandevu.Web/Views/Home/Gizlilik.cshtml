@@ -1,0 +1,47 @@
+@inject UygulamaBilgisi Uygulama
+@{
+    ViewData["Title"] = "Gizlilik ve KVKK";
+}
+
+<article class="mx-auto" style="max-width: 46rem">
+    <h1 class="h3 mb-3">Gizlilik ve kişisel verilerin korunması</h1>
+
+    @if (Uygulama.DemoModu)
+    {
+        <div class="alert alert-info">
+            Bu site bir <strong>ders projesinin demo sürümüdür</strong>; gerçek bir sağlık kuruluşu değildir.
+            Sistemdeki doktor ve hasta kayıtları sentetiktir (uydurmadır). Lütfen gerçek sağlık bilgilerinizi girmeyin.
+        </div>
+    }
+
+    <h2 class="h5 mt-4">Hangi verileri işliyoruz?</h2>
+    <ul>
+        <li><strong>Hesap bilgileri:</strong> ad, soyad, e-posta, telefon (isteğe bağlı), TC kimlik numarası, doğum tarihi, cinsiyet.</li>
+        <li><strong>Sağlık verileri (özel nitelikli):</strong> girdiğiniz belirtiler, şiddetleri ve açıklamanız; randevularınız ve doktorunuzun muayene notu.</li>
+        <li><strong>Kayıtlar:</strong> geçmişinize kimin eriştiği, gönderilen bildirimler.</li>
+    </ul>
+    <p>Şifreniz yalnızca geri döndürülemez biçimde (tuzlu PBKDF2 hash) saklanır; kimse göremez.</p>
+
+    <h2 class="h5 mt-4">Hangi amaçla?</h2>
+    <p>Belirtilerinize göre uygun polikliniği önermek, randevu oluşturmak, hatırlatma ve bildirim göndermek, doktorunuzun
+        muayene öncesi şikâyetinizi görmesini sağlamak.</p>
+
+    <h2 class="h5 mt-4">Kimler görebilir?</h2>
+    <ul>
+        <li><strong>Siz:</strong> tüm geçmişinizi ve geçmişinize kimlerin baktığını (Geçmişim sayfası).</li>
+        <li><strong>Doktorlar:</strong> yalnızca sizinle randevusu olan doktorlar; her erişim kayıt altına alınır.</li>
+        <li><strong>Yöneticiler:</strong> randevu düzenini görür, belirti ve muayene notu gibi tıbbi içeriği <em>görmez</em>.</li>
+    </ul>
+
+    <h2 class="h5 mt-4">Yurt dışına aktarım</h2>
+    <ul>
+        <li><strong>Yapay zekâ değerlendirmesi</strong> yalnızca formda <em>açıkça onay verirseniz</em> yapılır: belirtileriniz ve açıklamanız
+            Anthropic'in (ABD) yapay zekâ servisine gönderilir. Ad, yaş, TC gibi profil bilgileriniz gönderilmez; metindeki TC, telefon ve
+            e-posta otomatik maskelenir.</li>
+        <li><strong>E-posta bildirimleri</strong> bir e-posta gönderim servisi (Brevo) aracılığıyla iletilir.</li>
+    </ul>
+
+    <h2 class="h5 mt-4">Haklarınız</h2>
+    <p>6698 sayılı KVKK'nın 11. maddesi kapsamında verilerinizin işlenip işlenmediğini öğrenme, düzeltilmesini ve silinmesini isteme
+        haklarınız vardır. Bu demo sürümünde talepler sistem yöneticisine iletilir.</p>
+</article>

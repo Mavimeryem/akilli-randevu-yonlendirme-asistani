@@ -1,0 +1,32 @@
+# Render.com "Blueprint" tanımı: Render bu dosyayı okuyup web servisini kendisi kurar.
+# Gizli değerler (sync: false) depoya yazılmaz; Render kurulum sırasında panelden ister.
+services:
+  - type: web
+    name: akilli-randevu
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /saglik
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      # Render uygulamaya bu porttan ulaşır.
+      - key: PORT
+        value: "8080"
+      # Demo: sentetik hesaplar (Demo1234) çalışsın, sayfa altında "demo sürümü" uyarısı görünsün.
+      - key: DemoModu
+        value: "true"
+      # Render HTTPS'i kendi proxy'sinde sonlandırır; asıl şema X-Forwarded-Proto'dan okunur.
+      - key: ProxyArkasinda
+        value: "true"
+      # --- Gizli / kişiye özel değerler: Render panelinde girilir ---
+      - key: ANTHROPIC_API_KEY          # Claude API anahtarı (yapay zekâ önerisi için; boşsa özellik kapalı)
+        sync: false
+      - key: Eposta__ApiAnahtari        # Brevo API anahtarı (e-posta bildirimi için; boşsa e-posta kapalı)
+        sync: false
+      - key: Eposta__GondericiAdres     # Brevo'da doğrulanmış gönderici e-posta adresi
+        sync: false
+      - key: Eposta__YonlendirmeAdresi  # Demo: tüm e-postaların gideceği gerçek adres
+        sync: false

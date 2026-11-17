@@ -1,54 +1,50 @@
 # Akıllı Randevu ve Poliklinik Yönlendirme Asistanı
 
-Hastaların belirtilerini girerek doğru polikliniğe yönlendirildiği ve randevu alabildiği web uygulaması.
+[![CI](https://github.com/Mavimeryem/akilli-randevu-yonlendirme-asistani/actions/workflows/ci.yml/badge.svg)](https://github.com/Mavimeryem/akilli-randevu-yonlendirme-asistani/actions/workflows/ci.yml)
 
-## Modüller
+Hasta belirtilerini girer, sistem uygun polikliniği önerir (kural tabanlı + isteğe bağlı yapay zekâ) ve hasta boş bir saate randevu alır. Doktor günlük takvimini ve hasta geçmişini görür; yönetici istatistikleri izler.
 
-- **Randevu takvimi:** Doktor ve bölüme göre uygun saatleri gösterir, randevu alınır ve iptal edilir.
-- **Belirti girişi:** Hasta şikâyetlerini seçer ya da yazar.
-- **Bölüm yönlendirme:** Girilen belirtilere göre uygun poliklinik önerilir.
-- **Hasta geçmişi:** Geçmiş randevular ve belirti kayıtları listelenir.
-- **Bildirim:** Randevu hatırlatma ve iptal bildirimleri gönderilir.
-- **Yönetici:** Bölüm, doktor, belirti ve kullanıcı yönetimi yapılır.
+> **Proje:** P06 – Bilgisayar Uygulamaları I, Bingöl Üniversitesi · **Öğrenci:** Meryem MAVİ (251161042)
+>
+> **Canlı demo:** _Render'a dağıtıldıktan sonra adres buraya eklenecek_ (adımlar: [docs/dagitim.md](docs/dagitim.md))
+>
+> ⚠️ Bu bir ders projesidir. Gerçek bir sağlık kuruluşu değildir, tıbbi tavsiye vermez; bütün veriler sentetiktir.
+
+## Özellikler
+
+| Rol | Yapabilecekleri |
+|---|---|
+| **Hasta** | Kayıt ve giriş · belirti seçme, şiddet ve açıklama girme · bölüm önerisi ve aciliyet uyarısı · isteğe bağlı yapay zekâ değerlendirmesi (açık onayla) · boş saatten randevu alma ve iptal · kendi geçmişini filtreleme · bildirimler |
+| **Doktor** | Günlük slot takvimi · randevu onaylama, tamamlama, gelmedi işaretleme · muayene notu · yalnızca kendi hastalarının geçmişi · sıra panosu |
+| **Yönetici** | Tüm randevular ve kullanıcılar · istatistikler (yoğunluk, doluluk, iptal/gelmeme, bekleme) ve CSV dışa aktarma · e-posta gönderim kayıtları · hasta geçmişi erişim izleri |
+
+Arka planda: randevudan 24 saat önce hatırlatma, randevu olaylarında uygulama içi bildirim ve (anahtar verilirse) e-posta.
 
 ## Teknolojiler
 
 | Alan | Teknoloji |
 |---|---|
-| Dil / Platform | C#, .NET 10 |
-| Web | ASP.NET Core MVC |
-| Veri erişimi | Entity Framework Core |
-| Veritabanı | SQLite |
-| Sürüm kontrolü | Git, GitHub |
+| Platform | C#, .NET 10, ASP.NET Core MVC, Razor |
+| Veri | Entity Framework Core 10, SQLite |
+| Yapay zekâ | Claude API (`claude-opus-5-5`), resmi `Anthropic` C# SDK |
+| E-posta | Brevo REST API |
+| Test | xUnit, WebApplicationFactory, coverlet, ReportGenerator |
+| CI / dağıtım | GitHub Actions, Docker, Render |
 
-## Proje yapısı
-
-Katmanlı mimari kullanılır. Ayrıntılar için [docs/mimari.md](docs/mimari.md) dosyasına bak.
-
-```
-src/
-├── AkilliRandevu.Web          → Sunum katmanı (MVC)
-├── AkilliRandevu.Business     → İş katmanı
-├── AkilliRandevu.DataAccess   → Veri katmanı (EF Core)
-└── AkilliRandevu.Entities     → Varlıklar
-```
-
-Veri modeli için [docs/ER-diyagrami.md](docs/ER-diyagrami.md), veritabanı, migration, kısıtlar ve CRUD için [docs/veritabani.md](docs/veritabani.md) dosyasına bak.
-
-## Çalıştırma
+## Hızlı başlangıç
 
 Gereksinim: [.NET 10 SDK](https://dotnet.microsoft.com/download)
 
 ```bash
-git clone <depo-adresi>
-cd akilli_randevu-asistani
-dotnet build
+git clone https://github.com/Mavimeryem/akilli-randevu-yonlendirme-asistani.git
+cd akilli-randevu-yonlendirme-asistani
 dotnet run --project src/AkilliRandevu.Web
 ```
 
-Ardından tarayıcıda konsolda yazan adresi aç (ör. `http://localhost:5xxx`). İlk çalıştırmada SQLite veritabanı (`akilli_randevu.db`) sentetik örnek veriyle otomatik oluşturulur.
+Konsolda yazan adresi tarayıcıda aç. İlk açılışta SQLite veritabanı sentetik verilerle oluşturulur. Docker ile çalıştırma ve ayrıntılar: [docs/kurulum.md](docs/kurulum.md).
 
-Geliştirme ortamındaki sentetik test hesapları (şifre: `Demo1234`):
+### Demo hesapları (şifre `Demo1234`)
+Yalnızca geliştirme ortamında ya da `DemoModu=true` iken açıktır.
 
 | Rol | E-posta |
 |---|---|
@@ -56,7 +52,41 @@ Geliştirme ortamındaki sentetik test hesapları (şifre: `Demo1234`):
 | Doktor | `doktor1@ornek.test` … `doktor10@ornek.test` |
 | Hasta | `hasta1@ornek.test` … `hasta8@ornek.test` |
 
-Güvenlik kararları için [docs/guvenlik-notu.md](docs/guvenlik-notu.md), randevu kuralları için [docs/randevu-modulu.md](docs/randevu-modulu.md), belirti yönlendirme kuralları için [docs/belirti-yonlendirme.md](docs/belirti-yonlendirme.md) dosyasına bak.
+Adım adım sunum akışı: [docs/demo-senaryosu.md](docs/demo-senaryosu.md)
+
+## Ortam değişkenleri (özet)
+
+| Değişken | Gerekli mi? | Açıklama |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | Hayır | Verilmezse yapay zekâ bileşeni kapalı, kural tabanlı öneri çalışır |
+| `Eposta__ApiAnahtari`, `Eposta__GondericiAdres` | Hayır | Verilmezse yalnızca uygulama içi bildirim |
+| `DemoModu` | Hayır | `true`: demo hesapları açık, sayfa altında demo uyarısı |
+| `IlkYonetici__Eposta`, `IlkYonetici__Sifre` | Hayır | İlk yönetici hesabını oluşturur |
+
+Tam liste: [docs/teknik-dokumantasyon.md](docs/teknik-dokumantasyon.md#6-yapılandırma-ve-ortam-değişkenleri). **API anahtarları depoya yazılmaz**; yerelde `dotnet user-secrets`, sunucuda platformun ortam değişkenleri ekranı kullanılır.
+
+## Testler
+
+```bash
+dotnet test
+```
+
+164 test (birim, bileşen, web ve uçtan uca). Satır kapsamı %89,7. Her push'ta GitHub Actions; derleme, migration/model uyumu, testler, kapsam raporu ve Docker imajı duman testini çalıştırır. Rapor: [docs/test-raporu.md](docs/test-raporu.md).
+
+## Belgeler
+
+| Belge | İçerik |
+|---|---|
+| [mimari.md](docs/mimari.md) | Katmanlar, modüller, klasör yapısı |
+| [teknik-dokumantasyon.md](docs/teknik-dokumantasyon.md) | Modüller, HTTP uç noktaları, dış servisler, yapılandırma |
+| [ER-diyagrami.md](docs/ER-diyagrami.md), [veritabani.md](docs/veritabani.md) | Veri modeli, migration'lar, kısıtlar |
+| [kurulum.md](docs/kurulum.md), [dagitim.md](docs/dagitim.md) | Yerel kurulum, Docker, Render'a dağıtım |
+| [guvenlik-notu.md](docs/guvenlik-notu.md) | Kimlik doğrulama, yetki, KVKK |
+| [randevu-modulu.md](docs/randevu-modulu.md), [belirti-yonlendirme.md](docs/belirti-yonlendirme.md) | Randevu ve yönlendirme kuralları |
+| [bildirim-entegrasyonu.md](docs/bildirim-entegrasyonu.md), [yapay-zeka-bileseni.md](docs/yapay-zeka-bileseni.md) | Dış API entegrasyonları |
+| [hasta-gecmisi.md](docs/hasta-gecmisi.md), [istatistik-ve-sira-panosu.md](docs/istatistik-ve-sira-panosu.md) | Geçmiş, istatistik, sıra panosu |
+| [test-raporu.md](docs/test-raporu.md), [hata-listesi.md](docs/hata-listesi.md) | Test sonuçları ve hatalar |
+| [ai-kullanim-gunlugu.md](docs/ai-kullanim-gunlugu.md) | Yapay zekâ araçlarının kullanımı |
 
 ## Haftalık ilerleme
 
@@ -73,4 +103,5 @@ Güvenlik kararları için [docs/guvenlik-notu.md](docs/guvenlik-notu.md), rande
 | 11 | Hasta geçmişi modülü | ✅ |
 | 12 | Randevu istatistikleri ve sıra panosu | ✅ |
 | 13 | Test ve hata ayıklama (164 test, %89,7 satır kapsamı) | ✅ |
-| 14–15 | … | ⏳ |
+| 14 | Dokümantasyon, arayüz iyileştirmeleri, dağıtım hazırlığı (Docker, Render) | ✅ |
+| 15 | Final entegrasyon ve sunum | ⏳ |

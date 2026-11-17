@@ -118,6 +118,16 @@ Bu hafta yapay zekâ hem geliştirme aracı hem de **ürünün parçası** olara
 
 ---
 
+## Hafta 14 – Dokümantasyon ve Dağıtım Hazırlığı
+
+| Görev | Araç | Kullanım amacı | Değerlendirme |
+|---|---|---|---|
+| README ve teknik belgeler | Claude (Claude Code) | Mimari şema, uç nokta tablosu, ortam değişkenleri, kurulum ve dağıtım belgelerinin taslağı | Uç noktalar controller'larla, ayarlar `appsettings.json` ile karşılaştırıldı |
+| Docker ve Render yapılandırması | Claude (Claude Code) | Çok aşamalı Dockerfile, proxy arkasında HTTPS, kalıcı oturum anahtarları, sağlık kontrolü | İmaj CI'da derlenip duman testinden geçirildi |
+| Arayüz ve erişilebilirlik | Claude (Claude Code) | İçeriğe geç bağlantısı, aktif menü, klavye odağı, hata ve gizlilik sayfaları | Sayfa testleriyle doğrulandı |
+
+---
+
 ## Genel Değerlendirme
 
 Yapay zekâ araçları bu projede şu amaçlarla kullanıldı:

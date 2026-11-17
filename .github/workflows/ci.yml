@@ -80,3 +80,43 @@ jobs:
           name: test-sonuclari
           path: TestSonuclari
           if-no-files-found: ignore
+
+  # Dağıtım hazırlığı: Docker imajı temiz bir ortamda derlenip çalıştırılıyor mu?
+  docker:
+    name: Docker imajı
+    needs: derle-ve-test-et
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Kodu al
+        uses: actions/checkout@v7
+
+      - name: İmajı derle
+        run: docker build -t akilli-randevu:ci .
+
+      - name: Konteyneri başlat ve sağlık kontrolü
+        run: |
+          docker run -d --name uygulama -p 8080:8080 -e DemoModu=true akilli-randevu:ci
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8080/saglik > /dev/null; then echo "Uygulama $i saniyede ayağa kalktı"; break; fi
+            sleep 1
+          done
+          curl -fsS http://localhost:8080/saglik
+
+      - name: Duman testi (canlı ortam ayarlarıyla)
+        run: |
+          set -e
+          h='-H X-Forwarded-Proto:https'
+          kod() { curl -s -o /dev/null -w '%{http_code}' $h "http://localhost:8080$1"; }
+          test "$(kod /)" = 200
+          test "$(kod /Hesap/Giris)" = 200
+          test "$(kod /Home/Gizlilik)" = 200
+          test "$(kod /olmayan-sayfa)" = 404
+          test "$(kod /Hasta/Randevularim)" = 302
+          curl -s $h http://localhost:8080/ | grep -q "Demo sürümü" || curl -s $h http://localhost:8080/ | grep -q "Demo s&#xFC;r&#xFC;m&#xFC;"
+          echo "::notice title=Docker::İmaj derlendi, konteyner çalıştı, sayfalar doğru durum kodlarını döndürdü"
+
+      - name: Konteyner günlükleri
+        if: always()
+        run: docker logs uygulama 2>&1 | tail -n 60

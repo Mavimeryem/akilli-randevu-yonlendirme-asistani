@@ -17,6 +17,11 @@ erDiagram
     BELIRTI ||--o{ BELIRTI_KAYDI_BELIRTI : "secilir"
     BELIRTI ||--o{ BELIRTI_BOLUM : "isaret eder"
     BOLUM ||--o{ BELIRTI_BOLUM : "ilgilenir"
+    BILDIRIM ||--o{ EPOSTA_GONDERIMI : "1-N e-posta kanali (H9)"
+    BELIRTI_KAYDI ||--o| YZ_DEGERLENDIRMESI : "1-0..1 yapay zeka (H10)"
+    BOLUM |o--o{ YZ_DEGERLENDIRMESI : "YZ onerisi"
+    HASTA ||--o{ ERISIM_KAYDI : "1-N erisim izi (H11)"
+    KULLANICI ||--o{ ERISIM_KAYDI : "1-N eristi"
 
     KULLANICI {
         int Id PK
@@ -80,6 +85,7 @@ erDiagram
         datetime BitisZamani
         int Durum
         string DoktorNotu
+        datetime HatirlatmaTarihi "H9, null olabilir"
     }
     BILDIRIM {
         int Id PK
@@ -87,6 +93,38 @@ erDiagram
         string Baslik
         string Mesaj
         bool OkunduMu
+    }
+    EPOSTA_GONDERIMI {
+        int Id PK
+        int BildirimId FK
+        string Alici
+        int Durum "Bekliyor/Gonderildi/Basarisiz/Atlandi"
+        int DenemeSayisi
+        string SonHata
+        string DisMesajId
+        datetime GonderimTarihi
+    }
+    YZ_DEGERLENDIRMESI {
+        int Id PK
+        int BelirtiKaydiId FK,UK
+        int Durum "Basarili/Hatali/Gecersiz/Reddedildi"
+        int OnerilenBolumId FK "null olabilir"
+        string Gerekce
+        int Guven "Dusuk/Orta/Yuksek"
+        bool AcilBelirtiVar
+        string AcilGerekce
+        string Model
+        string IstemSurumu
+        int SureMs
+        string Hata
+    }
+    ERISIM_KAYDI {
+        int Id PK
+        int HastaId FK
+        int ErisenKullaniciId FK
+        int ErisenRol
+        string Islem
+        datetime OlusturmaTarihi
     }
 ```
 
@@ -104,6 +142,11 @@ erDiagram
 | BelirtiKaydi – Randevu | 1-0..1 | `Randevu.BelirtiKaydiId` FK (null olabilir, benzersiz) |
 | Belirti – Bolum | N-N | `BelirtiBolum` ara tablosu, birleşik PK |
 | BelirtiKaydi – Belirti | N-N | `BelirtiKaydiBelirti` ara tablosu, birleşik PK |
+| Bildirim – EpostaGonderimi (H9) | 1-N | `EpostaGonderimi.BildirimId` FK, CASCADE |
+| BelirtiKaydi – YzDegerlendirmesi (H10) | 1-0..1 | `YzDegerlendirmesi.BelirtiKaydiId` FK + benzersiz, CASCADE |
+| Bolum – YzDegerlendirmesi (H10) | 1-N (opsiyonel) | `YzDegerlendirmesi.OnerilenBolumId` FK, SET NULL |
+| Hasta – ErisimKaydi (H11) | 1-N | `ErisimKaydi.HastaId` FK, CASCADE |
+| Kullanici – ErisimKaydi (H11) | 1-N | `ErisimKaydi.ErisenKullaniciId` FK, RESTRICT (iz silinmesin) |
 
 ## Normalizasyon notları
 

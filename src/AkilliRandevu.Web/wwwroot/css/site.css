@@ -12,13 +12,42 @@ html {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+/* Klavye ile gezinirken odak her zaman görünür olsun (erişilebilirlik). */
+a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 3px solid #258cfb;
+  outline-offset: 2px;
 }
 
+/* Alt bilgi sayfanın sonunda; içerik uzayınca üstüne binmez. */
 body {
-  margin-bottom: 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body > .container {
+  flex: 1 0 auto;
+}
+
+/* "İçeriğe geç" bağlantısı: yalnızca klavye odağında görünür. */
+.icerige-gec {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 1080;
+  padding: .5rem 1rem;
+  background: #fff;
+  border: 2px solid #258cfb;
+}
+
+.icerige-gec:focus {
+  left: 1rem;
+  top: .5rem;
+}
+
+/* Aktif menü öğesi */
+.navbar .nav-link.active, .navbar .dropdown-item.active {
+  font-weight: 600;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {

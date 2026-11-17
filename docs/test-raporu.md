@@ -10,6 +10,14 @@
 | Ortam | GitHub Actions, `ubuntu-latest`, .NET 10, Release derlemesi |
 | Kaynak | CI çalışması [44133530766](https://github.com/Mavimeryem/akilli-randevu-yonlendirme-asistani/actions/runs/44133530766) |
 
+### Proje bazında satır kapsamı
+| Proje | Satır |
+|---|---|
+| AkilliRandevu.Business | %89,0 |
+| AkilliRandevu.DataAccess | %96,4 |
+| AkilliRandevu.Entities | %90,7 |
+| AkilliRandevu.Web | %82,8 |
+
 Kapsamdan otomatik üretilen kod çıkarıldı: EF Core migration dosyaları ve Razor'ın ürettiği sınıflar. Ayrıntılı HTML kapsam raporu her CI çalışmasının **test-sonuclari** eserinde (`kapsam/index.html`) bulunur.
 
 ## Test piramidi
