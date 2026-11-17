@@ -128,6 +128,16 @@ Bu hafta yapay zekâ hem geliştirme aracı hem de **ürünün parçası** olara
 
 ---
 
+## Hafta 15 – Final Entegrasyon ve Sunum Hazırlığı
+
+| Görev | Araç | Kullanım amacı | Değerlendirme |
+|---|---|---|---|
+| Uçtan uca doğrulama listesi | Claude (Claude Code) | Gereksinimleri testlere eşleme | Eşlemede eksik bulunan "hasta iptali → doktora bildirim" senaryosu için test eklendi |
+| Demo senaryosu ve sunum anahattı | Claude (Claude Code) | Sıra ve süre planı | Slayt metinleri öğrenci tarafından yazılacak |
+| CHANGELOG ve sürüm etiketi | Claude (Claude Code) | Sürüm notları | Commit geçmişiyle karşılaştırıldı |
+
+---
+
 ## Genel Değerlendirme
 
 Yapay zekâ araçları bu projede şu amaçlarla kullanıldı:

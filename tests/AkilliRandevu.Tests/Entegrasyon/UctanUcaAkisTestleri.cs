@@ -84,6 +84,38 @@ public class UctanUcaAkisTestleri
     }
 
     [Fact]
+    public async Task Hasta_randevusunu_iptal_edince_doktor_bildirim_alir_slot_bosalir()
+    {
+        using var f = new WebFabrikasi();
+        var gun = SonrakiIsGunu();
+        var saat = $"{gun:yyyy-MM-dd}T10:00";
+
+        var hasta = f.Istemci();
+        await hasta.GirisYapAsync("hasta5@ornek.test");
+        var randevu = await hasta.FormGonderAsync("/Randevu/Al", "/Randevu/Al", [new("doktorId", "1"), new("baslangic", saat)]);
+        Assert.Equal(HttpStatusCode.Redirect, randevu.StatusCode);
+
+        var doktor = f.Istemci();
+        await doktor.GirisYapAsync("doktor1@ornek.test");
+        var takvim = await (await doktor.GetAsync($"/Doktor/Takvim?gun={gun:yyyy-MM-dd}")).MetinAsync();
+        var randevuId = System.Text.RegularExpressions.Regex.Match(takvim, "name=\"id\" value=\"(\\d+)\"").Groups[1].Value;
+        Assert.NotEqual("", randevuId);
+
+        var iptal = await hasta.FormGonderAsync("/Hasta/Randevularim", "/Randevu/DurumDegistir",
+            [new("id", randevuId), new("durum", "IptalEdildi"), new("returnUrl", "/Hasta/Randevularim")]);
+        Assert.Equal(HttpStatusCode.Redirect, iptal.StatusCode);
+
+        var bildirimler = await (await doktor.GetAsync("/Bildirim")).MetinAsync();
+        Assert.Contains("hasta tarafından iptal edildi", bildirimler);
+
+        // İptal edilen saat yeniden alınabilir.
+        var baska = f.Istemci();
+        await baska.GirisYapAsync("hasta6@ornek.test");
+        var yeniden = await baska.FormGonderAsync("/Randevu/Al", "/Randevu/Al", [new("doktorId", "1"), new("baslangic", saat)]);
+        Assert.Contains("/Hasta/Randevularim", yeniden.Headers.Location!.OriginalString);
+    }
+
+    [Fact]
     public async Task Yeni_hasta_kayit_olup_giris_yapabilir_sifre_duz_metin_saklanmaz()
     {
         using var f = new WebFabrikasi();

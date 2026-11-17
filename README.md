@@ -71,7 +71,7 @@ Tam liste: [docs/teknik-dokumantasyon.md](docs/teknik-dokumantasyon.md#6-yapıla
 dotnet test
 ```
 
-164 test (birim, bileşen, web ve uçtan uca). Satır kapsamı %89,7. Her push'ta GitHub Actions; derleme, migration/model uyumu, testler, kapsam raporu ve Docker imajı duman testini çalıştırır. Rapor: [docs/test-raporu.md](docs/test-raporu.md).
+171 test (birim, bileşen, web ve uçtan uca). Satır kapsamı yaklaşık %89. Her push'ta GitHub Actions; derleme, migration/model uyumu, testler, kapsam raporu ve Docker imajı duman testini çalıştırır. Rapor: [docs/test-raporu.md](docs/test-raporu.md).
 
 ## Belgeler
 
@@ -86,6 +86,9 @@ dotnet test
 | [bildirim-entegrasyonu.md](docs/bildirim-entegrasyonu.md), [yapay-zeka-bileseni.md](docs/yapay-zeka-bileseni.md) | Dış API entegrasyonları |
 | [hasta-gecmisi.md](docs/hasta-gecmisi.md), [istatistik-ve-sira-panosu.md](docs/istatistik-ve-sira-panosu.md) | Geçmiş, istatistik, sıra panosu |
 | [test-raporu.md](docs/test-raporu.md), [hata-listesi.md](docs/hata-listesi.md) | Test sonuçları ve hatalar |
+| [uctan-uca-dogrulama.md](docs/uctan-uca-dogrulama.md) | Gereksinim → doğrulama eşlemesi, sunum öncesi kontrol listesi |
+| [final-demo-senaryosu.md](docs/final-demo-senaryosu.md), [sunum-taslagi.md](docs/sunum-taslagi.md) | Savunma demosu ve sunum anahattı |
+| [CHANGELOG.md](CHANGELOG.md) | Sürüm geçmişi (`v0.8.0`, `v1.0.0`) |
 | [ai-kullanim-gunlugu.md](docs/ai-kullanim-gunlugu.md) | Yapay zekâ araçlarının kullanımı |
 
 ## Haftalık ilerleme
@@ -104,4 +107,4 @@ dotnet test
 | 12 | Randevu istatistikleri ve sıra panosu | ✅ |
 | 13 | Test ve hata ayıklama (164 test, %89,7 satır kapsamı) | ✅ |
 | 14 | Dokümantasyon, arayüz iyileştirmeleri, dağıtım hazırlığı (Docker, Render) | ✅ |
-| 15 | Final entegrasyon ve sunum | ⏳ |
+| 15 | Final entegrasyon, uçtan uca doğrulama, `v1.0.0` sürümü, demo ve sunum hazırlığı | ✅ |
