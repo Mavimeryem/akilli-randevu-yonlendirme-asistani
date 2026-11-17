@@ -1,6 +1,6 @@
 name: CI
 
-# Her push ve pull request'te: derleme → migration/model uyumu → testler (+ kapsam raporu).
+# Her push ve pull request'te: derleme → migration/model uyumu → testler → kapsam raporu.
 on:
   push:
     branches: [main]
@@ -13,14 +13,14 @@ jobs:
   derle-ve-test-et:
     name: Derle ve test et
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Kodu al
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: .NET 10 kur
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
@@ -47,9 +47,35 @@ jobs:
           --collect:"XPlat Code Coverage"
           --results-directory TestSonuclari
 
-      - name: Test sonuçlarını sakla
+      - name: Test sayıları
         if: always()
-        uses: actions/upload-artifact@v4
+        run: |
+          f=$(find TestSonuclari -name 'test-sonuclari.trx' | head -1)
+          if [ -n "$f" ]; then
+            sayac=$(grep -o '<Counters [^>]*>' "$f" | sed 's/<Counters //; s/>//')
+            echo "::notice title=Test sonucu::$sayac"
+          fi
+
+      - name: Kapsam raporu
+        if: always()
+        run: |
+          dotnet reportgenerator \
+            -reports:"TestSonuclari/**/coverage.cobertura.xml" \
+            -targetdir:TestSonuclari/kapsam \
+            -reporttypes:"MarkdownSummaryGithub;TextSummary;Html" \
+            -assemblyfilters:"-AkilliRandevu.Tests" \
+            -classfilters:"-AkilliRandevu.DataAccess.Migrations.*;-AspNetCoreGeneratedDocument.*"
+          cat TestSonuclari/kapsam/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
+          satir=$(grep -m1 "Line coverage" TestSonuclari/kapsam/Summary.txt | awk '{print $3}')
+          dal=$(grep -m1 "Branch coverage" TestSonuclari/kapsam/Summary.txt | awk '{print $3}')
+          echo "::notice title=Kod kapsamı::Satır $satir · dal $dal"
+          grep -E "^  AkilliRandevu\.(Business|DataAccess|Web|Entities) " TestSonuclari/kapsam/Summary.txt | while read -r satir; do
+            echo "::notice title=Kapsam (proje)::$satir"
+          done
+
+      - name: Test ve kapsam sonuçlarını sakla
+        if: always()
+        uses: actions/upload-artifact@v5
         with:
           name: test-sonuclari
           path: TestSonuclari

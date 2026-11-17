@@ -72,3 +72,6 @@ app.MapControllerRoute(
 
 
 app.Run();
+
+/// <summary>Entegrasyon testleri (WebApplicationFactory) uygulamayı bu sınıf üzerinden başlatır.</summary>
+public partial class Program;
